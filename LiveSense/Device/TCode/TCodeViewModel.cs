@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 
 namespace LiveSense.Device.TCode
 {
-
     [JsonObject(MemberSerialization.OptIn)]
     public class TCodeViewModel : Screen, IDevice
     {

@@ -58,7 +58,7 @@ namespace LiveSense.Device.Buttplug
             {
                 IsConnected = await Connect();
             }
-            
+
             IsBusy = false;
         }
 
@@ -160,7 +160,7 @@ namespace LiveSense.Device.Buttplug
                             if (linearAttributes.FeatureCount >= 3 && IsAxisDirty(DeviceAxis.L2)) cmds.Add((interval, values[DeviceAxis.L2]));
                             if (cmds.Count > 0) tasks.Add(device.SendLinearCmd(cmds));
                         }
-                        
+
                         if (device.AllowedMessages.TryGetValue(typeof(RotateCmd), out var rotateAttributes))
                         {
                             var cmds = new List<(double, bool)>();

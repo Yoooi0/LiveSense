@@ -142,6 +142,27 @@ namespace LiveSense.Service.Chaturbate
 
         private async Task ReadMessagesAsync(object state)
         {
+            static async Task<string> ReadStringAsync(ClientWebSocket socket, CancellationToken token)
+            {
+                WebSocketReceiveResult result;
+                var buffer = new ArraySegment<byte>(new byte[1024]);
+                using var stream = new MemoryStream();
+                do
+                {
+                    result = await socket.ReceiveAsync(buffer, token);
+                    stream.Write(buffer.Array, buffer.Offset, result.Count);
+                }
+                while (!result.EndOfMessage);
+
+                stream.Seek(0, SeekOrigin.Begin);
+
+                using var reader = new StreamReader(stream, Encoding.UTF8);
+                return reader.ReadToEnd();
+            }
+
+            static async Task WriteStringAsync(ClientWebSocket socket, string data, CancellationToken token)
+                => await socket.SendAsync(Encoding.UTF8.GetBytes(data), WebSocketMessageType.Text, true, token);
+
             var token = (CancellationToken)state;
 
             try
@@ -208,32 +229,11 @@ namespace LiveSense.Service.Chaturbate
                 room = RoomName.ToLower()
             });
 
-        private string CreateMessage(string method, object data)
+        private static string CreateMessage(string method, object data)
         {
             var result = JsonConvert.SerializeObject(new { method, data });
             return JsonConvert.SerializeObject(new[] { result });
         }
-
-        private async Task<string> ReadStringAsync(ClientWebSocket socket, CancellationToken token)
-        {
-            WebSocketReceiveResult result;
-            var buffer = new ArraySegment<byte>(new byte[1024]);
-            using var stream = new MemoryStream();
-            do
-            {
-                result = await socket.ReceiveAsync(buffer, token);
-                stream.Write(buffer.Array, buffer.Offset, result.Count);
-            }
-            while (!result.EndOfMessage);
-
-            stream.Seek(0, SeekOrigin.Begin);
-
-            using var reader = new StreamReader(stream, Encoding.UTF8);
-            return reader.ReadToEnd();
-        }
-
-        private async Task WriteStringAsync(ClientWebSocket socket, string data, CancellationToken token)
-            => await socket.SendAsync(Encoding.UTF8.GetBytes(data), WebSocketMessageType.Text, true, token);
 
         protected override async void OnDeactivate()
         {

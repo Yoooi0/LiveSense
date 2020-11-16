@@ -31,7 +31,7 @@ namespace LiveSense.Common.Behaviours
 
         private static void OnFullRowSelectChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
         {
-            if (!(depObj is DataGrid grid))
+            if (depObj is not DataGrid grid)
                 return;
 
             if (e.NewValue is bool)
@@ -47,7 +47,7 @@ namespace LiveSense.Common.Behaviours
 
         private static void OnCommitRowOnCellEditEndingChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
         {
-            if (!(depObj is DataGrid grid))
+            if (depObj is not DataGrid grid)
                 return;
 
             if (e.NewValue is bool)
@@ -56,11 +56,10 @@ namespace LiveSense.Common.Behaviours
                 grid.CellEditEnding -= OnCellEditEnding;
         }
 
-
         private static bool _suppressCellEditEndingEvent;
         private static void OnCellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            if (!(sender is DataGrid grid))
+            if (sender is not DataGrid grid)
                 return;
 
             if (e.EditAction == DataGridEditAction.Cancel)
@@ -80,8 +79,7 @@ namespace LiveSense.Common.Behaviours
             while ((dependencyObject != null) && !(dependencyObject is DataGridRow))
                 dependencyObject = VisualTreeHelper.GetParent(dependencyObject);
 
-            var row = dependencyObject as DataGridRow;
-            if (row == null)
+            if (dependencyObject is not DataGridRow row)
                 return;
 
             row.IsSelected = true;
@@ -90,8 +88,7 @@ namespace LiveSense.Common.Behaviours
             while ((dependencyObject != null) && !(dependencyObject is DataGrid))
                 dependencyObject = VisualTreeHelper.GetParent(dependencyObject);
 
-            var dataGrid = dependencyObject as DataGrid;
-            if (dataGrid == null)
+            if (dependencyObject is not DataGrid dataGrid)
                 return;
 
             dataGrid.Focus();

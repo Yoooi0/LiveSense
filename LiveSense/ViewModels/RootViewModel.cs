@@ -20,17 +20,18 @@ namespace LiveSense.ViewModels
 {
     public class CustomContractResolver : DefaultContractResolver
     {
-        private static void ClearGenericCollectionCallback<T>(object o, StreamingContext c)
+        private static void ClearGenericCollectionCallback<T>(object o, StreamingContext _)
         {
             if (o is ICollection<T> collection && !(collection is Array) && !collection.IsReadOnly)
                 collection.Clear();
         }
 
-        private IEnumerable<Type> GetCollectionGenericTypes(Type type)
+        private static IEnumerable<Type> GetCollectionGenericTypes(Type type)
         {
             var interfaces = type.GetInterfaces();
-            if(type.IsInterface)
-                interfaces.Append(type);
+            //TODO:
+            //if(type.IsInterface)
+            //    interfaces.Append(type);
 
             foreach (var intType in interfaces)
                 if (intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof(ICollection<>))
@@ -52,7 +53,7 @@ namespace LiveSense.ViewModels
                 }
                 else if (GetCollectionGenericTypes(objectType).Count() == 1)
                 {
-                    var method = typeof(CustomContractResolver).GetMethod("ClearGenericCollectionCallback", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                    var method = typeof(CustomContractResolver).GetMethod(nameof(ClearGenericCollectionCallback), BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
                     var generic = method.MakeGenericMethod(contract.CollectionItemType);
                     contract.OnDeserializingCallbacks.Add((SerializationCallback)Delegate.CreateDelegate(typeof(SerializationCallback), generic));
                 }
@@ -66,9 +67,9 @@ namespace LiveSense.ViewModels
     {
         private readonly IEventAggregator _eventAggregator;
 
-        [Inject] public SettingsViewModel Settings { get; private set; }
-        [Inject] public MotionSourceViewModel MotionSource { get; private set; }
-        [Inject] public TipQueueViewModel TipQueue { get; private set; }
+        [Inject] public SettingsViewModel Settings { get; internal set; }
+        [Inject] public MotionSourceViewModel MotionSource { get; internal set; }
+        [Inject] public TipQueueViewModel TipQueue { get; internal set; }
 
         public RootViewModel(IEventAggregator eventAggregator)
         {

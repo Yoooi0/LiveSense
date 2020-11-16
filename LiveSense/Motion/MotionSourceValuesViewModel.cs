@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace LiveSense.Motion
 {
-    public class MotionSourceValuesViewModel : Screen, IHandle<MotionSourceChangedEvent>
+    public class MotionSourceValuesViewModel : Screen, IHandle<MotionSourceChangedEvent>, IDisposable
     {
         public class ValueItemModel : PropertyChangedBase
         {
@@ -68,6 +68,19 @@ namespace LiveSense.Motion
         {
             _cancellationSource = new CancellationTokenSource();
             _updateTask = Task.Factory.StartNew(UpdateValuesAsync, _cancellationSource.Token, _cancellationSource.Token);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            _cancellationSource.Cancel();
+            _updateTask.Wait();
+            _cancellationSource.Dispose();
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace LiveSense.Motion.TipMenu
     /// <summary>
     /// Interaction logic for TipMenuActionGraph.xaml
     /// </summary>
-    /// 
+    ///
     public class PointCollectionConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -97,7 +97,7 @@ namespace LiveSense.Motion.TipMenu
 
         private static void OnActionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (!(d is TipMenuActionGraph graph))
+            if (d is not TipMenuActionGraph graph)
                 return;
 
             if (e.OldValue is TipMenuAction oldAction)

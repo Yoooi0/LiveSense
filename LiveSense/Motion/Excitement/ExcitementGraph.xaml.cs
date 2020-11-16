@@ -31,13 +31,13 @@ namespace LiveSense.Motion.Excitement
 
         public static readonly DependencyProperty ItemsSourceProperty =
             DependencyProperty.Register("ItemsSource", typeof(BindableCollection<IExcitementGraphItem>), typeof(ExcitementGraph),
-                new FrameworkPropertyMetadata(null, 
-                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, 
+                new FrameworkPropertyMetadata(null,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     new PropertyChangedCallback(OnItemsSourceChanged)));
 
         private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (!(d is ExcitementGraph graph))
+            if (d is not ExcitementGraph graph)
                 return;
 
             if (e.OldValue is BindableCollection<IExcitementGraphItem> oldItems)
@@ -119,8 +119,8 @@ namespace LiveSense.Motion.Excitement
             {
                 var color = colors[index++ % colors.Length];
                 LegendItems.Add(new LegendItem()
-                { 
-                    Value = property.Name, 
+                {
+                    Value = property.Name,
                     Color = new SolidColorBrush(color)
                 });
 

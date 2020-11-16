@@ -20,6 +20,5 @@ namespace LiveSense.Common
             a = b;
             b = temp;
         }
-
     }
 }

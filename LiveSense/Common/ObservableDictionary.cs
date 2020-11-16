@@ -23,7 +23,7 @@ namespace LiveSense.Common
         protected KeyedDictionaryEntryCollection<TKey> _keyedEntryCollection;
 
         private int _countCache = 0;
-        private Dictionary<TKey, TValue> _dictionaryCache = new Dictionary<TKey, TValue>();
+        private readonly Dictionary<TKey, TValue> _dictionaryCache = new Dictionary<TKey, TValue>();
         private int _dictionaryCacheVersion = 0;
         private int _version = 0;
 
@@ -83,7 +83,6 @@ namespace LiveSense.Common
             }
         }
 
-
         public void Add(TKey key, TValue value) => DoAddEntry(key, value);
         public void Clear() => DoClearEntries();
         public bool ContainsKey(TKey key) => _keyedEntryCollection.Contains(key);
@@ -94,7 +93,7 @@ namespace LiveSense.Common
         public bool TryGetValue(TKey key, out TValue value)
         {
             var result = _keyedEntryCollection.Contains(key);
-            value = result ? (TValue)_keyedEntryCollection[key].Value : default(TValue);
+            value = result ? (TValue)_keyedEntryCollection[key].Value : default;
             return result;
         }
 
@@ -290,11 +289,11 @@ namespace LiveSense.Common
         void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int index)
         {
             if (array == null)
-                throw new ArgumentNullException("CopyTo() failed:  array parameter was null");
+                throw new ArgumentNullException(nameof(array));
             if ((index < 0) || (index > array.Length))
-                throw new ArgumentOutOfRangeException("CopyTo() failed:  index parameter was outside the bounds of the supplied array");
+                throw new ArgumentOutOfRangeException(nameof(index), "parameter was outside the bounds of the supplied array");
             if ((array.Length - index) < _keyedEntryCollection.Count)
-                throw new ArgumentException("CopyTo() failed:  supplied array was too small");
+                throw new ArgumentException("supplied array was too small");
 
             foreach (var entry in _keyedEntryCollection)
                 array[index++] = new KeyValuePair<TKey, TValue>((TKey)entry.Key, (TValue)entry.Value);
@@ -316,7 +315,7 @@ namespace LiveSense.Common
             remove { CollectionChanged -= value; }
         }
 
-        protected virtual event NotifyCollectionChangedEventHandler CollectionChanged;
+        protected event NotifyCollectionChangedEventHandler CollectionChanged;
 
         event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
         {
@@ -324,7 +323,7 @@ namespace LiveSense.Common
             remove { PropertyChanged -= value; }
         }
 
-        protected virtual event PropertyChangedEventHandler PropertyChanged;
+        protected event PropertyChangedEventHandler PropertyChanged;
 
         protected class KeyedDictionaryEntryCollection<TKey> : KeyedCollection<TKey, DictionaryEntry>
         {
@@ -337,11 +336,11 @@ namespace LiveSense.Common
         [StructLayout(LayoutKind.Sequential)]
         public struct Enumerator<TKey, TValue> : IEnumerator<KeyValuePair<TKey, TValue>>, IDisposable, IDictionaryEnumerator, IEnumerator
         {
-            private ObservableDictionary<TKey, TValue> _dictionary;
-            private int _version;
+            private readonly ObservableDictionary<TKey, TValue> _dictionary;
+            private readonly bool _isDictionaryEntryEnumerator;
+            private readonly int _version;
             private int _index;
             private KeyValuePair<TKey, TValue> _current;
-            private bool _isDictionaryEntryEnumerator;
 
             internal Enumerator(ObservableDictionary<TKey, TValue> dictionary, bool isDictionaryEntryEnumerator)
             {

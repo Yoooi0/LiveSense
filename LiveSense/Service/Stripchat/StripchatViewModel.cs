@@ -78,7 +78,7 @@ namespace LiveSense.Service.Stripchat
 
                 var roomExists = !document["users"]["notFoundKeys"]
                     .ToObject<string[]>()
-                    .Any(s => string.Compare(s, RoomName, StringComparison.OrdinalIgnoreCase) == 0);
+                    .Any(s => string.Equals(s, RoomName, StringComparison.OrdinalIgnoreCase));
 
                 if (!roomExists)
                 {
@@ -140,6 +140,27 @@ namespace LiveSense.Service.Stripchat
 
         private async Task ReadMessagesAsync(object state)
         {
+            static async Task<string> ReadStringAsync(ClientWebSocket socket, CancellationToken token)
+            {
+                WebSocketReceiveResult result;
+                var buffer = new ArraySegment<byte>(new byte[1024]);
+                using var stream = new MemoryStream();
+                do
+                {
+                    result = await socket.ReceiveAsync(buffer, token);
+                    stream.Write(buffer.Array, buffer.Offset, result.Count);
+                }
+                while (!result.EndOfMessage);
+
+                stream.Seek(0, SeekOrigin.Begin);
+
+                using var reader = new StreamReader(stream, Encoding.UTF8);
+                return reader.ReadToEnd();
+            }
+
+            static async Task WriteStringAsync(ClientWebSocket socket, string data, CancellationToken token)
+                => await socket.SendAsync(Encoding.UTF8.GetBytes(data), WebSocketMessageType.Text, true, token);
+
             var token = (CancellationToken)state;
 
             try
@@ -190,34 +211,12 @@ namespace LiveSense.Service.Stripchat
                             }
                         }
                     }
-
                 }
             }
             catch (OperationCanceledException)
             {
             }
         }
-
-        private async Task<string> ReadStringAsync(ClientWebSocket socket, CancellationToken token)
-        {
-            WebSocketReceiveResult result;
-            var buffer = new ArraySegment<byte>(new byte[1024]);
-            using var stream = new MemoryStream();
-            do
-            {
-                result = await socket.ReceiveAsync(buffer, token);
-                stream.Write(buffer.Array, buffer.Offset, result.Count);
-            }
-            while (!result.EndOfMessage);
-
-            stream.Seek(0, SeekOrigin.Begin);
-
-            using var reader = new StreamReader(stream, Encoding.UTF8);
-            return reader.ReadToEnd();
-        }
-
-        private async Task WriteStringAsync(ClientWebSocket socket, string data, CancellationToken token)
-            => await socket.SendAsync(Encoding.UTF8.GetBytes(data), WebSocketMessageType.Text, true, token);
 
         protected override async void OnDeactivate()
         {

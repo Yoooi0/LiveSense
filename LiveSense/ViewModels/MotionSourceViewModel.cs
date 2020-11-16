@@ -22,7 +22,7 @@ namespace LiveSense.ViewModels
     {
         private readonly IEventAggregator _eventAggregator;
 
-        public MotionSourceValuesViewModel MotionValues { get; private set; }
+        public MotionSourceValuesViewModel MotionValues { get; internal set; }
 
         public MotionSourceViewModel(MotionSourceValuesViewModel motionValues, IEventAggregator eventAggregator, IEnumerable<IMotionSource> motionSources)
         {
