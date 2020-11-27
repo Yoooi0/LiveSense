@@ -76,16 +76,6 @@ namespace LiveSense.Service.Stripchat
                 var state = Regex.Match(content, @"<script>[\n\r\s]*?window\.__PRELOADED_STATE__\s?=\s?({.+?})</script>").Groups[1].Value;
                 var document = JObject.Parse(state);
 
-                var roomExists = !document["users"]["notFoundKeys"]
-                    .ToObject<string[]>()
-                    .Any(s => string.Equals(s, RoomName, StringComparison.OrdinalIgnoreCase));
-
-                if (!roomExists)
-                {
-                    _ = DialogHost.Show(new ErrorMessageDialog("Room does not exist!"));
-                    return false;
-                }
-
                 var roomOnline = document["viewCam"]["isCamAvailable"].ToObject<bool>();
                 if (!roomOnline)
                 {
