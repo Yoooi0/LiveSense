@@ -84,12 +84,12 @@ namespace LiveSense.Device.Buttplug
                 {
                     try
                     {
-                        await _client.StartScanningAsync(_cancellationSource.Token);
-                        while (_client.Devices.Length == 0)
+                        await _client?.StartScanningAsync(_cancellationSource.Token);
+                        while (!_cancellationSource.IsCancellationRequested && _client?.Devices.Length == 0)
                             await Task.Delay(200);
 
                         await Task.Delay(5000);
-                        await _client.StopScanningAsync(_cancellationSource.Token);
+                        await _client?.StopScanningAsync(_cancellationSource.Token);
                     }
                     catch (OperationCanceledException)
                     {
