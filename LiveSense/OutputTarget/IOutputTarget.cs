@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace LiveSense.Service
+namespace LiveSense.OutputTarget
 {
-    public enum ServiceStatus
+    public enum OutputTargetStatus
     {
         Disconnected,
         Disconnecting,
@@ -10,10 +10,10 @@ namespace LiveSense.Service
         Connected
     }
 
-    public interface IService
+    public interface IOutputTarget
     {
         string Name { get; }
-        ServiceStatus Status { get; }
+        OutputTargetStatus Status { get; }
         bool ContentVisible { get; set; }
 
         Task ToggleConnectAsync();

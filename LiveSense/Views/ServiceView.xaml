@@ -6,16 +6,35 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:LiveSense.Views"
+             xmlns:converters="clr-namespace:LiveSense.Common.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <StackPanel Margin="20">
-        <ComboBox Style="{StaticResource MaterialDesignFloatingHintComboBox}"
-                  material:HintAssist.Hint="Service"
-                  material:TextFieldAssist.HasClearButton="True"
-                  Margin="0 0 0 20"
-                  ItemsSource="{Binding Items}"
-                  SelectedItem="{Binding ActiveItem}"
-                  DisplayMemberPath="ServiceName" />
-        <ContentControl s:View.Model="{Binding ActiveItem}"/>
-    </StackPanel>
+             d:DesignHeight="450" d:DesignWidth="800">    
+    <UserControl.Resources>
+        <converters:ServiceStatusToBrushConverter x:Key="ServiceStatusToBrushConverter"/>
+    </UserControl.Resources>
+    <material:Card material:ShadowAssist.ShadowDepth="Depth1" Margin="10">
+        <StackPanel>
+            <TabControl ItemsSource="{Binding Items}" 
+                        SelectedItem="{Binding ActiveItem}">
+                <TabControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Vertical" Margin="10 0 10 0" Width="75">
+                            <TextBlock Text="{Binding Name}" 
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding Status}" 
+                                       HorizontalAlignment="Center"
+                                       FontWeight="Light"
+                                       FontSize="10" 
+                                       Foreground="{Binding Status, Converter={StaticResource ServiceStatusToBrushConverter}}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
+                <TabControl.ContentTemplate>
+                    <DataTemplate>
+                        <ContentControl s:View.Model="{Binding}"/>
+                    </DataTemplate>
+                </TabControl.ContentTemplate>
+            </TabControl>
+        </StackPanel>
+    </material:Card>
 </UserControl>

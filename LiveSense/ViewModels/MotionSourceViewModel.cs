@@ -1,6 +1,7 @@
-﻿using LiveSense.Common;
-using LiveSense.Common.Settings;
+using LiveSense.Common;
+using LiveSense.Common.Messages;
 using LiveSense.Motion;
+using LiveSense.OutputTarget;
 using Newtonsoft.Json.Linq;
 using Stylet;
 using System.Collections.Generic;
@@ -8,17 +9,7 @@ using System.Linq;
 
 namespace LiveSense.ViewModels
 {
-    public class MotionSourceChangedEvent
-    {
-        public IMotionSource MotionSource { get; }
-
-        public MotionSourceChangedEvent(IMotionSource motionSource)
-        {
-            MotionSource = motionSource;
-        }
-    }
-
-    public class MotionSourceViewModel : Conductor<IMotionSource>.Collection.OneActive, IHandle<AppSettingsEvent>
+    public class MotionSourceViewModel : Conductor<IMotionSource>.Collection.OneActive, IHandle<AppSettingsMessage>, IDeviceAxisValueProvider
     {
         private readonly IEventAggregator _eventAggregator;
 
@@ -32,32 +23,19 @@ namespace LiveSense.ViewModels
 
             Items.AddRange(motionSources);
             MotionValues.ConductWith(this);
-            ScreenExtensions.TryActivate(this);
         }
 
-        protected override void OnInitialActivate()
+        public void Handle(AppSettingsMessage message)
         {
-            base.OnInitialActivate();
-            _eventAggregator.Publish(new MotionSourceChangedEvent(ActiveItem));
-        }
-
-        public override void ActivateItem(IMotionSource item)
-        {
-            base.ActivateItem(item);
-            _eventAggregator.Publish(new MotionSourceChangedEvent(item));
-        }
-
-        public void Handle(AppSettingsEvent message)
-        {
-            if(message.Status == AppSettingsStatus.Saving)
+            if(message.Type == AppSettingsMessageType.Saving)
             {
                 message.Settings.Add("MotionSource", JObject.FromObject(new
                 {
-                    ActiveItem = ActiveItem.MotionName,
+                    ActiveItem = ActiveItem.Name,
                     Items = Items.Select(i => JObject.FromObject(i))
                 }));
             }
-            else if (message.Status == AppSettingsStatus.Loading)
+            else if (message.Type == AppSettingsMessageType.Loading)
             {
                 if (!message.Settings.ContainsKey("MotionSource"))
                     return;
@@ -65,15 +43,17 @@ namespace LiveSense.ViewModels
                 var motionSettings = message.Settings["MotionSource"];
                 foreach (var itemSettings in (motionSettings["Items"] as JArray))
                 {
-                    var item = Items.FirstOrDefault(i => i.MotionName == itemSettings["MotionName"].ToString());
+                    var item = Items.FirstOrDefault(i => i.Name == itemSettings["MotionName"].ToString());
                     if (item == null)
                         continue;
 
                     itemSettings.Populate(item);
                 }
 
-                ActiveItem = Items.FirstOrDefault(i => i.MotionName == motionSettings["ActiveItem"].ToString());
+                ActiveItem = Items.FirstOrDefault(i => i.Name == motionSettings["ActiveItem"].ToString());
             }
         }
+
+        public float GetValue(DeviceAxis axis) => ActiveItem?.GetValue(axis) ?? float.NaN;
     }
 }

@@ -1,6 +1,6 @@
-﻿using LiveSense.Common;
+using LiveSense.Common;
 using LiveSense.Common.Messages;
-using LiveSense.Service;
+using LiveSense.OutputTarget;
 using Stylet;
 using System;
 using System.Collections.Generic;
@@ -8,28 +8,28 @@ using System.Linq;
 
 namespace LiveSense.ViewModels
 {
-    public class ServiceViewModel : Conductor<IService>.Collection.OneActive, IHandle<AppSettingsMessage>, IDisposable
+    public class OutputTargetViewModel : Conductor<IOutputTarget>.Collection.OneActive, IHandle<AppSettingsMessage>, IDisposable
     {
-        public ServiceViewModel(IEventAggregator eventAggregator, IEnumerable<IService> services)
+        public OutputTargetViewModel(IEventAggregator eventAggregator, IEnumerable<IOutputTarget> targets)
         {
             eventAggregator.Subscribe(this);
-            Items.AddRange(services);
+            Items.AddRange(targets);
         }
 
         public void Handle(AppSettingsMessage message)
         {
             if (message.Type == AppSettingsMessageType.Saving)
             {
-                if (!message.Settings.EnsureContainsObjects("Service")
-                 || !message.Settings.TryGetObject(out var settings, "Service"))
+                if (!message.Settings.EnsureContainsObjects("OutputTarget")
+                 || !message.Settings.TryGetObject(out var settings, "OutputTarget"))
                     return;
 
-                if (ActiveItem != null)
+                if(ActiveItem != null)
                     settings[nameof(ActiveItem)] = ActiveItem.Name;
             }
             else if (message.Type == AppSettingsMessageType.Loading)
             {
-                if (!message.Settings.TryGetObject(out var settings, "Service"))
+                if (!message.Settings.TryGetObject(out var settings, "OutputTarget"))
                     return;
 
                 if (settings.TryGetValue(nameof(ActiveItem), out var selectedItemToken))
@@ -37,7 +37,7 @@ namespace LiveSense.ViewModels
             }
         }
 
-        protected override void ChangeActiveItem(IService newItem, bool closePrevious)
+        protected override void ChangeActiveItem(IOutputTarget newItem, bool closePrevious)
         {
             if (ActiveItem != null && newItem != null)
             {

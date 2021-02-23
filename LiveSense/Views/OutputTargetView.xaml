@@ -1,30 +1,31 @@
-<UserControl x:Class="LiveSense.Views.MotionSourceView"
+﻿<UserControl x:Class="LiveSense.Views.OutputTargetView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:material="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:s="https://github.com/canton7/Stylet"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:LiveSense.Views" 
+             xmlns:converters="clr-namespace:LiveSense.Common.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800">    
+    <UserControl.Resources>
+        <converters:OutputTargetStatusToBrushConverter x:Key="OutputTargetStatusToBrushConverter"/>
+    </UserControl.Resources>
     <material:Card material:ShadowAssist.ShadowDepth="Depth1" Margin="10">
-        <DockPanel LastChildFill="True">
-            <material:Card DockPanel.Dock="Bottom" material:ShadowAssist.ShadowDepth="Depth0" Background="{DynamicResource MaterialDesignBackground}">
-                <StackPanel>
-                    <Expander HorizontalAlignment="Stretch" Header="Values">
-                        <StackPanel Orientation="Vertical" Margin="24,8,24,16">
-                            <ContentControl s:View.Model="{Binding MotionValues}"/>
-                        </StackPanel>
-                    </Expander>
-                </StackPanel>
-            </material:Card>
-            <TabControl DockPanel.Dock="Top" 
-                        ItemsSource="{Binding Items}" 
+        <StackPanel>
+            <TabControl ItemsSource="{Binding Items}" 
                         SelectedItem="{Binding ActiveItem}">
                 <TabControl.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Vertical" Margin="10 0 10 0" Width="75">
-                            <TextBlock Text="{Binding Name}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding Name}" 
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding Status}" 
+                                       HorizontalAlignment="Center"
+                                       FontWeight="Light"
+                                       FontSize="10" 
+                                       Foreground="{Binding Status, Converter={StaticResource OutputTargetStatusToBrushConverter}}"/>
                         </StackPanel>
                     </DataTemplate>
                 </TabControl.ItemTemplate>
@@ -34,6 +35,6 @@
                     </DataTemplate>
                 </TabControl.ContentTemplate>
             </TabControl>
-        </DockPanel>
+        </StackPanel>
     </material:Card>
 </UserControl>

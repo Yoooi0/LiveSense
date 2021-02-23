@@ -4,7 +4,7 @@ using Stylet;
 
 namespace LiveSense.ViewModels
 {
-    public class TipQueueViewModel : PropertyChangedBase
+    public class TipQueueViewModel : Screen
     {
         public ITipQueue TipQueue { get; }
 
@@ -13,8 +13,8 @@ namespace LiveSense.ViewModels
             TipQueue = queue;
         }
 
-        public void PublishTip(string amount)
-            => TipQueue.Enqueue(new ServiceTip("Anonymous", int.Parse(amount)));
+        public void PublishTip(string amount) //TODO: random
+            => TipQueue.Enqueue(new ServiceTip("Manual", "Anonymous", int.Parse(amount)));
 
         public void ClearQueue()
             => TipQueue.Clear();

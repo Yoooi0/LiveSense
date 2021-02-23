@@ -7,8 +7,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Text;
 using System.Threading;
 
 namespace LiveSense.Common

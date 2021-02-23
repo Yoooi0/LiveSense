@@ -1,5 +1,5 @@
 ﻿using LiveSense.Common;
-using LiveSense.Device;
+using LiveSense.OutputTarget;
 using LiveSense.Motion;
 using LiveSense.Service;
 using LiveSense.ViewModels;
@@ -12,7 +12,9 @@ namespace LiveSense
     {
         protected override void ConfigureIoC(IStyletIoCBuilder builder)
         {
-            builder.Bind<IDevice>().ToAllImplementations();
+            builder.Bind<MotionSourceViewModel>().And<IDeviceAxisValueProvider>().To<MotionSourceViewModel>().InSingletonScope();
+
+            builder.Bind<IOutputTarget>().ToAllImplementations();
             builder.Bind<IService>().ToAllImplementations();
             builder.Bind<IMotionSource>().ToAllImplementations();
             builder.Bind<ITipQueue>().ToInstance(new ObservableTipQueue());

@@ -1,5 +1,6 @@
-﻿using LiveSense.Common.Settings;
-using MaterialDesignExtensions.Controls;
+﻿using LiveSense.Common.Controls;
+using LiveSense.Common.Messages;
+using MaterialDesignThemes.Wpf;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -14,7 +15,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
 
 namespace LiveSense.ViewModels
 {
@@ -63,13 +65,14 @@ namespace LiveSense.ViewModels
         }
     }
 
-    public class RootViewModel : PropertyChangedBase
+    public class RootViewModel : Conductor<IScreen>.Collection.AllActive
     {
         private readonly IEventAggregator _eventAggregator;
 
-        [Inject] public SettingsViewModel Settings { get; internal set; }
         [Inject] public MotionSourceViewModel MotionSource { get; internal set; }
         [Inject] public TipQueueViewModel TipQueue { get; internal set; }
+        [Inject] public OutputTargetViewModel OutputTarget { get; set; }
+        [Inject] public ServiceViewModel Service { get; set; }
 
         public RootViewModel(IEventAggregator eventAggregator)
         {
@@ -88,47 +91,74 @@ namespace LiveSense.ViewModels
             };
         }
 
-        public async Task SaveSettings()
+        protected override void OnActivate()
         {
-            var dialogArgs = new SaveFileDialogArguments()
-            {
-                Width = 900,
-                Height = 700,
-                Filters = "All files|*.*|JSON files|*.json",
-                CreateNewDirectoryEnabled = true,
-                CurrentDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName)
-            };
+            Items.Add(MotionSource);
+            Items.Add(TipQueue);
+            Items.Add(OutputTarget);
+            Items.Add(Service);
 
-            var result = await SaveFileDialog.ShowDialogAsync("RootDialog", dialogArgs);
-            if (!result.Confirmed)
-                return;
-
-            var settings = new JObject();
-            _eventAggregator.Publish(new AppSettingsEvent(settings, AppSettingsStatus.Saving));
-
-            File.WriteAllText(result.File, settings.ToString());
+            ActivateAndSetParent(Items);
+            base.OnActivate();
         }
 
-        public async Task LoadSettings()
+        public void OnLoaded(object sender, EventArgs e)
         {
-            var dialogArgs = new OpenFileDialogArguments()
+            Execute.PostToUIThread(async () =>
             {
-                Width = 900,
-                Height = 700,
-                Filters = "All files|*.*|JSON files|*.json",
-                CreateNewDirectoryEnabled = true,
-                CurrentDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName)
-            };
+                var settings = ReadSettings();
+                _eventAggregator.Publish(new AppSettingsMessage(settings, AppSettingsMessageType.Loading));
 
-            var result = await OpenFileDialog.ShowDialogAsync("RootDialog", dialogArgs);
-            if (!result.Confirmed)
+                if (!settings.TryGetValue("DisablePopup", out var disablePopupToken) || !disablePopupToken.Value<bool>())
+                {
+                    var result = await DialogHost.Show(new InformationMessageDialog(showCheckbox: true)).ConfigureAwait(true);
+                    if (result is not bool disablePopup || !disablePopup)
+                        return;
+
+                    settings["DisablePopup"] = true;
+                    WriteSettings(settings);
+                }
+            });
+        }
+
+        public void OnClosing(object sender, EventArgs e)
+        {
+            var settings = ReadSettings();
+            _eventAggregator.Publish(new AppSettingsMessage(settings, AppSettingsMessageType.Saving));
+            WriteSettings(settings);
+        }
+
+        private JObject ReadSettings()
+        {
+            var path = Path.Join(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "LiveSense.config.json");
+            if (!File.Exists(path))
+                return new JObject();
+
+            try
+            {
+                return JObject.Parse(File.ReadAllText(path));
+            }
+            catch (JsonException)
+            {
+                return new JObject();
+            }
+        }
+
+        private void WriteSettings(JObject settings)
+        {
+            var path = Path.Join(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "LiveSense.config.json");
+            File.WriteAllText(path, settings.ToString());
+        }
+
+        public void OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not Window window)
                 return;
 
-            var serializer = JsonSerializer.CreateDefault();
-            serializer.Converters.Add(new StringEnumConverter());
+            if (e.LeftButton != MouseButtonState.Pressed)
+                return;
 
-            var settings = JObject.Parse(File.ReadAllText(result.File));
-            _eventAggregator.Publish(new AppSettingsEvent(settings, AppSettingsStatus.Loading));
+            window.DragMove();
         }
     }
 }

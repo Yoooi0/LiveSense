@@ -1,0 +1,132 @@
+﻿<UserControl x:Class="LiveSense.Service.Chaturbate.ChaturbateView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:material="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:s="https://github.com/canton7/Stylet"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <DockPanel LastChildFill="True">
+        <DockPanel DockPanel.Dock="Top" LastChildFill="True">
+            <Border BorderThickness="0 0 0 1"
+                    Height="35"
+                    BorderBrush="{StaticResource PrimaryHueLightBrush}">
+                <DockPanel LastChildFill="True"
+                           Background="{StaticResource MaterialDesignToolBarBackground}">
+                    <DockPanel DockPanel.Dock="Left" LastChildFill="False">
+                        <Button DockPanel.Dock="Left"
+                                Command="{s:Action ToggleConnectAsync}"
+                                IsEnabled="{Binding CanToggleConnect}"                                           
+                                ToolTipService.InitialShowDelay="0"
+                                ToolTipService.Placement="Top"
+                                material:ButtonProgressAssist.IsIndicatorVisible="{Binding IsConnectBusy}"
+                                material:ButtonProgressAssist.Value="-1"
+                                material:ButtonProgressAssist.IsIndeterminate="True">
+                            <Button.Style>
+                                <Style TargetType="{x:Type ButtonBase}" BasedOn="{StaticResource MaterialDesignProgressToolBarButton}">
+                                    <Setter Property="ToolTip" Value="Connect" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                            <Setter Property="ToolTip" Value="Disconnect" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <material:PackIcon Width="19" Height="19">
+                                <material:PackIcon.Style>
+                                    <Style TargetType="material:PackIcon" BasedOn="{StaticResource {x:Type material:PackIcon}}">
+                                        <Setter Property="Kind" Value="Play" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                                <Setter Property="Kind" Value="Stop" />
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.8" />
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </DataTrigger.EnterActions>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </material:PackIcon.Style>
+                            </material:PackIcon>
+                        </Button>
+                        
+                        <ToggleButton DockPanel.Dock="Right"
+                                      IsChecked="{Binding ContentVisible}"                                
+                                      ToolTipService.InitialShowDelay="0"
+                                      ToolTipService.Placement="Top"
+                                      material:ToggleButtonAssist.OnContent="a">
+                            <ToggleButton.Resources>
+                                <Style TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource MaterialDesignProgressToolBarButton}">
+                                    <Setter Property="ToolTip" Value="Open settings" />
+                                    <Setter Property="Content">
+                                        <Setter.Value>
+                                            <material:PackIcon Kind="ChevronDown" Width="19" Height="19"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter Property="ToolTip" Value="Close settings" />
+                                            <Setter Property="Content">
+                                                <Setter.Value>
+                                                    <material:PackIcon Kind="ChevronUp" Width="19" Height="19"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ToggleButton.Resources>
+                        </ToggleButton>
+                    </DockPanel>
+                </DockPanel>
+            </Border>
+        </DockPanel>
+        <StackPanel DockPanel.Dock="Bottom"
+                    Margin="20" 
+                    Visibility="{Binding ContentVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <DockPanel>
+                <TextBox DockPanel.Dock="Left"
+                         material:HintAssist.Hint="Room name" 
+                         Text="{Binding RoomName, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0 -12 50 0"
+                         Width="200"
+                         VerticalAlignment="Center">
+                    <TextBox.Resources>
+                        <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
+                            <Setter Property="IsEnabled" Value="False"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Status}" Value="Disconnected">
+                                    <Setter Property="IsEnabled" Value="True"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Resources>
+                </TextBox>
+                
+                <StackPanel DockPanel.Dock="Right"
+                            Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center" 
+                               Text="Delay" 
+                               Margin="0 0 10 0"/>
+                    <Slider Value="{Binding RoomDelay, Mode=TwoWay}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Center"
+                            Margin="0 0 10 0"
+                            Width="190"
+                            Minimum="0" 
+                            Maximum="20"
+                            Interval="1"
+                            IsSnapToTickEnabled="True" 
+                            TickFrequency="0.1" 
+                            Orientation="Horizontal"/>
+                    <TextBlock VerticalAlignment="Center" 
+                               HorizontalAlignment="Left" 
+                               Text="{Binding RoomDelay, StringFormat={}{0} s}"/>
+                </StackPanel>
+            </DockPanel>
+        </StackPanel>
+    </DockPanel>
+</UserControl>

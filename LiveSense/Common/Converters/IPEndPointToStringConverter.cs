@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows;
+using System.Net;
 using System.Windows.Data;
 
 namespace LiveSense.Common.Converters
 {
-    public class NullVisibilityConverter : IValueConverter
+    public class IPEndPointToStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            => value == null ? Visibility.Hidden : Visibility.Visible;
+            => value is IPEndPoint endpoint ? endpoint.ToString() : null;
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => throw new NotImplementedException();
+            => value is string s && IPEndPoint.TryParse(s, out var endpoint) ? endpoint : null;
     }
 }

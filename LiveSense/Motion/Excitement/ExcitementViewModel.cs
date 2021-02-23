@@ -1,18 +1,9 @@
 ﻿using LiveSense.Common;
-using LiveSense.Device;
-using LiveSense.Service;
 using Newtonsoft.Json;
 using Stylet;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace LiveSense.Motion.Excitement
 {
@@ -38,7 +29,7 @@ namespace LiveSense.Motion.Excitement
         [JsonProperty] public ValueRange<float> DecayRange { get; set; } = (0f, 0.125f);
         [JsonProperty] public ValueRange<float> DecayStrengthRange { get; set; } = (0, 1.5f);
 
-        [JsonProperty] public string MotionName => "Excitement";
+        [JsonProperty] public string Name => "Excitement";
 
         public ExcitementViewModel(ITipQueue queue)
         {

@@ -8,22 +8,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
              xmlns:local="clr-namespace:LiveSense.Motion.TipMenu"
+             xmlns:common="clr-namespace:LiveSense.Common"
              xmlns:behaviours="clr-namespace:LiveSense.Common.Behaviours"
-             xmlns:device="clr-namespace:LiveSense.Device"
+             xmlns:controls="clr-namespace:LiveSense.Common.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <local:SafeMotionFunctionEnumConverter x:Key="SafeMotionFunctionEnumConverter" />
-        <ObjectDataProvider x:Key="MotionFunctionValues" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="local:MotionFunction"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-        <ObjectDataProvider x:Key="DeviceAxisValues" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="device:DeviceAxis"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
     </UserControl.Resources>
     <DockPanel LastChildFill="True">
         <material:Card material:ShadowAssist.ShadowDepth="Depth0" DockPanel.Dock="Bottom" Background="{DynamicResource MaterialDesignBackground}">
@@ -181,12 +172,12 @@
                                                          IsEditable="True" 
                                                          Width="60"
                                                          SelectedValueBinding="{Binding Axis, UpdateSourceTrigger=PropertyChanged}" 
-                                                         ItemsSourceBinding="{Binding Source={StaticResource DeviceAxisValues}}"/>
+                                                         ItemsSourceBinding="{Binding Source={controls:EnumBindingSource {x:Type common:DeviceAxis}}}"/>
                         <material:DataGridComboBoxColumn Header="Function" 
                                                                  IsEditable="True" 
                                                                  Width="150" 
                                                                  SelectedValueBinding="{Binding Function}" 
-                                                                 ItemsSourceBinding="{Binding Source={StaticResource MotionFunctionValues}}"/>
+                                                                 ItemsSourceBinding="{Binding Source={controls:EnumBindingSource {x:Type local:MotionFunction}}}"/>
 
                         <material:DataGridTextColumn Binding="{Binding Period}" 
                                                      Header="Period" 

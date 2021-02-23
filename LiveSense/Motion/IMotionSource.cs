@@ -1,12 +1,9 @@
-﻿using LiveSense.Device;
-using LiveSense.Service;
-using Stylet;
+﻿using LiveSense.OutputTarget;
 
 namespace LiveSense.Motion
 {
-    public interface IMotionSource
+    public interface IMotionSource : IDeviceAxisValueProvider
     {
-        string MotionName { get; }
-        public float GetValue(DeviceAxis axis);
+        string Name { get; }
     }
 }

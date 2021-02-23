@@ -1,5 +1,4 @@
 ﻿using LiveSense.Common;
-using LiveSense.Device;
 using Newtonsoft.Json;
 using Stylet;
 

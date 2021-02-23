@@ -17,15 +17,24 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         BorderThickness="1"
-        Title="LiveSense" Height="900" Width="1440">
+        Title="LiveSense" 
+        Height="900" 
+        Width="1024"
+        Loaded="{s:Action OnLoaded}"
+        Closing="{s:Action OnClosing}"
+        MouseDown="{s:Action OnMouseDown}">
     <materialExtensions:MaterialWindow.TitleTemplate>
         <DataTemplate>
-            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+            <DockPanel VerticalAlignment="Center" 
+                       LastChildFill="False">
+                <StackPanel DockPanel.Dock="Left" 
+                            Orientation="Horizontal" 
+                            VerticalAlignment="Center">
                     <material:PackIcon Style="{StaticResource WindowButtonIconStyle}"
-                                       Foreground="White"
-                                       Kind="Star" 
-                                       Margin="8,0,0,0" 
-                                       RenderTransformOrigin="0.5, 0.5">
+                                        Foreground="White"
+                                        Kind="Star" 
+                                        Margin="8,0,0,0" 
+                                        RenderTransformOrigin="0.5, 0.5">
                         <material:PackIcon.RenderTransform>
                             <ScaleTransform/>
                         </material:PackIcon.RenderTransform>
@@ -53,42 +62,35 @@
                         </material:PackIcon.Triggers>
                     </material:PackIcon>
                     <TextBlock Grid.Column="0"
-                               Margin="8,0,0,0"
-                               Style="{StaticResource WindowTitleTextBlockStyle}" 
-                               Text="{Binding Path=Title, RelativeSource={RelativeSource AncestorType={x:Type materialExtensions:MaterialWindow}}}"/>
-
-                    <Border Width="1" VerticalAlignment="Stretch" SnapsToDevicePixels="True" Margin="20,0,8,0"
-                            Background="{Binding Path=BorderForegroundBrush, RelativeSource={RelativeSource AncestorType={x:Type materialExtensions:MaterialWindow}}}" />
-
-                <Button Style="{StaticResource WindowButtonStyle}"
-                        Click="{s:Action SaveSettings}"
-                        Margin="0,-4 0,-4">
-                        <material:PackIcon Style="{StaticResource WindowButtonIconStyle}"
-                                           Foreground="White"
-                                           Kind="ContentSaveOutline"/>
-                    </Button>
-
-                <Button Style="{StaticResource WindowButtonStyle}"
-                        Click="{s:Action LoadSettings}"
-                        Margin="0,-4 0,-4">
-                        <material:PackIcon Style="{StaticResource WindowButtonIconStyle}"
-                                           Foreground="White"
-                                           Kind="FolderOpenOutline"/>
-                    </Button>
+                                Margin="8,0,0,0"
+                                Style="{StaticResource WindowTitleTextBlockStyle}" 
+                                Text="{Binding Path=Title, RelativeSource={RelativeSource AncestorType={x:Type materialExtensions:MaterialWindow}}}"/>
                 </StackPanel>
+                <Button Style="{StaticResource WindowButtonStyle}"
+                        Click="{s:Action OnInformationClick}"
+                        DockPanel.Dock="Right"
+                        Margin="0 -1 0 -1">
+                    <material:PackIcon Foreground="White"
+                                       Kind="InformationOutline"
+                                       Width="24"
+                                       Height="24"
+                                       Margin="0"/>
+                </Button>
+            </DockPanel>
         </DataTemplate>
     </materialExtensions:MaterialWindow.TitleTemplate>
     <material:DialogHost Identifier="RootDialog" DialogTheme="Inherit">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="400"/>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="350"/>
             </Grid.ColumnDefinitions>
-
-            <ContentControl s:View.Model="{Binding Settings}" Grid.Column="0"/>
-            <ContentControl s:View.Model="{Binding MotionSource}" Grid.Column="1"/>
-            <ContentControl s:View.Model="{Binding TipQueue}" Grid.Column="2"/>
+            <DockPanel Grid.Column="0" LastChildFill="True">
+                <ContentControl s:View.Model="{Binding Service}" DockPanel.Dock="Top"/>
+                <ContentControl s:View.Model="{Binding OutputTarget}" DockPanel.Dock="Bottom"/>
+                <ContentControl s:View.Model="{Binding MotionSource}" DockPanel.Dock="Top"/>
+            </DockPanel>
+            <ContentControl s:View.Model="{Binding TipQueue}" Grid.Column="1"/>
         </Grid>
     </material:DialogHost>
 </materialExtensions:MaterialWindow>

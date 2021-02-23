@@ -1,5 +1,4 @@
 ﻿using LiveSense.Common;
-using LiveSense.Device;
 using LiveSense.Service;
 using Newtonsoft.Json;
 using Stylet;
@@ -16,11 +15,10 @@ namespace LiveSense.Motion.TipMenu
     {
         private readonly ITipQueue _queue;
         private readonly ConcurrentDictionary<DeviceAxis, float> _devicePositions;
-        private readonly IReadOnlyDictionary<DeviceAxis, float> _defaultPositions;
         private Thread _thread;
         private CancellationTokenSource _cancellationSource;
 
-        [JsonProperty] public string MotionName => "Tip Menu";
+        [JsonProperty] public string Name => "Tip Menu";
         [JsonProperty] public BindableCollection<TipMenuItem> TipMenuItems { get; set; }
 
         public TipMenuItem SelectedTipMenuItem { get; set; }
@@ -48,19 +46,7 @@ namespace LiveSense.Motion.TipMenu
                 }
             };
 
-            _defaultPositions = new Dictionary<DeviceAxis, float>()
-            {
-                [DeviceAxis.L0] = 0.5f,
-                [DeviceAxis.L1] = 0.5f,
-                [DeviceAxis.L2] = 0.5f,
-                [DeviceAxis.R0] = 0.5f,
-                [DeviceAxis.R1] = 0.5f,
-                [DeviceAxis.R2] = 0.5f,
-                [DeviceAxis.V0] = 0.0f,
-                [DeviceAxis.V1] = 0.0f
-            };
-
-            _devicePositions = new ConcurrentDictionary<DeviceAxis, float>(_defaultPositions);
+            _devicePositions = new ConcurrentDictionary<DeviceAxis, float>(EnumUtils.GetValues<DeviceAxis>().ToDictionary(a => a, a => a.DefaultValue()));
         }
 
         private void Process(object state)
@@ -95,8 +81,7 @@ namespace LiveSense.Motion.TipMenu
             if (item.Duration == 0)
                 return;
 
-            var idleAxes = ((DeviceAxis[])Enum.GetValues(typeof(DeviceAxis)))
-                                         .Except(item.Actions.Select(a => a.Axis));
+            var idleAxes = EnumUtils.GetValues<DeviceAxis>().Except(item.Actions.Select(a => a.Axis));
             var devicePositionsCopy = new Dictionary<DeviceAxis, float>(_devicePositions);
 
             var time = 0L;
@@ -108,7 +93,7 @@ namespace LiveSense.Motion.TipMenu
                 if (_queue.FirstOrDefault() != tip)
                     break;
 
-                Execute.OnUIThread(() => tip.Progress = MathUtils.Clamp01((float)time / item.Duration) * 100);
+                Execute.OnUIThread(() => tip.Progress = MathUtils.Clamp01((float)time / item.Duration) * 100); //TODO: 60hz
 
                 foreach (var action in item.Actions)
                 {
@@ -119,7 +104,7 @@ namespace LiveSense.Motion.TipMenu
 
                 var resetTime = MathUtils.Clamp01((float)time / Math.Min(item.Duration, 1000));
                 foreach (var axis in idleAxes)
-                    _devicePositions[axis] = MathUtils.Lerp(devicePositionsCopy[axis], _defaultPositions[axis], resetTime);
+                    _devicePositions[axis] = MathUtils.Lerp(devicePositionsCopy[axis], axis.DefaultValue(), resetTime);
 
                 Thread.Sleep(3);
             }
@@ -131,7 +116,7 @@ namespace LiveSense.Motion.TipMenu
                     _devicePositions[action.Axis] = value;
             }
             foreach (var axis in idleAxes)
-                _devicePositions[axis] = _defaultPositions[axis];
+                _devicePositions[axis] = axis.DefaultValue();
         }
 
         private void ExecuteReset(int duration)
@@ -143,14 +128,14 @@ namespace LiveSense.Motion.TipMenu
             while ((time = (DateTime.UtcNow.Ticks - startTime) / TimeSpan.TicksPerMillisecond) <= duration)
             {
                 var resetTime = MathUtils.Clamp01((float)time / duration);
-                foreach (var axis in (DeviceAxis[])Enum.GetValues(typeof(DeviceAxis)))
-                    _devicePositions[axis] = MathUtils.Lerp(devicePositionsCopy[axis], _defaultPositions[axis], resetTime);
+                foreach (var axis in EnumUtils.GetValues<DeviceAxis>())
+                    _devicePositions[axis] = MathUtils.Lerp(devicePositionsCopy[axis], axis.DefaultValue(), resetTime);
 
                 Thread.Sleep(3);
             }
 
-            foreach (var axis in (DeviceAxis[])Enum.GetValues(typeof(DeviceAxis)))
-                _devicePositions[axis] = _defaultPositions[axis];
+            foreach (var axis in EnumUtils.GetValues<DeviceAxis>())
+                _devicePositions[axis] = axis.DefaultValue();
         }
 
         public float GetValue(DeviceAxis axis)
