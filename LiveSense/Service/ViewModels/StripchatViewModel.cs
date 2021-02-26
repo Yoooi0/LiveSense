@@ -1,4 +1,4 @@
-﻿using LiveSense.Common;
+using LiveSense.Common;
 using LiveSense.Common.Controls;
 using LiveSense.Common.Messages;
 using LiveSense.OutputTarget;
@@ -120,9 +120,6 @@ namespace LiveSense.Service.Stripchat
                 await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None).ConfigureAwait(false);
         }
 
-        protected override void HandleSettings(JObject settings, AppSettingsMessageType type)
-        {
-            //TODO:
-        }
+        protected override void HandleSettings(JObject settings, AppSettingsMessageType type) { }
     }
 }

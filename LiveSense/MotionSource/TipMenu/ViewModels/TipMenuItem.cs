@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Stylet;
 
-namespace LiveSense.Motion.TipMenu
+namespace LiveSense.MotionSource.TipMenu.ViewModels
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class TipMenuItem : PropertyChangedBase

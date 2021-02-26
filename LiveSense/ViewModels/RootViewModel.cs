@@ -20,51 +20,6 @@ using System.Windows.Input;
 
 namespace LiveSense.ViewModels
 {
-    public class CustomContractResolver : DefaultContractResolver
-    {
-        private static void ClearGenericCollectionCallback<T>(object o, StreamingContext _)
-        {
-            if (o is ICollection<T> collection && !(collection is Array) && !collection.IsReadOnly)
-                collection.Clear();
-        }
-
-        private static IEnumerable<Type> GetCollectionGenericTypes(Type type)
-        {
-            var interfaces = type.GetInterfaces();
-            //TODO:
-            //if(type.IsInterface)
-            //    interfaces.Append(type);
-
-            foreach (var intType in interfaces)
-                if (intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof(ICollection<>))
-                    yield return intType.GetGenericArguments()[0];
-        }
-
-        protected override JsonArrayContract CreateArrayContract(Type objectType)
-        {
-            var contract = base.CreateArrayContract(objectType);
-            if (!objectType.IsArray)
-            {
-                if (typeof(IList).IsAssignableFrom(objectType))
-                {
-                    contract.OnDeserializingCallbacks.Add((o, _) =>
-                    {
-                        if (o is IList list && !(list is Array) && !list.IsReadOnly)
-                            list.Clear();
-                    });
-                }
-                else if (GetCollectionGenericTypes(objectType).Count() == 1)
-                {
-                    var method = typeof(CustomContractResolver).GetMethod(nameof(ClearGenericCollectionCallback), BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-                    var generic = method.MakeGenericMethod(contract.CollectionItemType);
-                    contract.OnDeserializingCallbacks.Add((SerializationCallback)Delegate.CreateDelegate(typeof(SerializationCallback), generic));
-                }
-            }
-
-            return contract;
-        }
-    }
-
     public class RootViewModel : Conductor<IScreen>.Collection.AllActive
     {
         private readonly IEventAggregator _eventAggregator;
@@ -82,8 +37,7 @@ namespace LiveSense.ViewModels
             {
                 var settings = new JsonSerializerSettings
                 {
-                    Formatting = Formatting.Indented,
-                    ContractResolver = new CustomContractResolver()
+                    Formatting = Formatting.Indented
                 };
 
                 settings.Converters.Add(new StringEnumConverter());

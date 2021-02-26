@@ -1,6 +1,6 @@
 ﻿using LiveSense.OutputTarget;
 
-namespace LiveSense.Motion
+namespace LiveSense.MotionSource
 {
     public interface IMotionSource : IDeviceAxisValueProvider
     {

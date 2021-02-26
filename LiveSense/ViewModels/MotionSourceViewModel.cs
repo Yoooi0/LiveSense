@@ -1,59 +1,100 @@
-using LiveSense.Common;
+﻿using LiveSense.Common;
 using LiveSense.Common.Messages;
-using LiveSense.Motion;
+using LiveSense.MotionSource;
 using LiveSense.OutputTarget;
 using Newtonsoft.Json.Linq;
 using Stylet;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace LiveSense.ViewModels
 {
-    public class MotionSourceViewModel : Conductor<IMotionSource>.Collection.OneActive, IHandle<AppSettingsMessage>, IDeviceAxisValueProvider
+    public class MotionSourceViewModel : Conductor<IMotionSource>.Collection.OneActive, IHandle<AppSettingsMessage>, IDeviceAxisValueProvider, IDisposable
     {
-        private readonly IEventAggregator _eventAggregator;
+        private CancellationTokenSource _cancellationSource;
 
-        public MotionSourceValuesViewModel MotionValues { get; internal set; }
+        public ObservableConcurrentDictionary<DeviceAxis, float> Values { get; set; }
 
-        public MotionSourceViewModel(MotionSourceValuesViewModel motionValues, IEventAggregator eventAggregator, IEnumerable<IMotionSource> motionSources)
+        public MotionSourceViewModel(IEventAggregator eventAggregator, IEnumerable<IMotionSource> motionSources)
         {
-            _eventAggregator = eventAggregator;
-            _eventAggregator.Subscribe(this);
-            MotionValues = motionValues;
+            eventAggregator.Subscribe(this);
 
             Items.AddRange(motionSources);
-            MotionValues.ConductWith(this);
+
+            Values = new ObservableConcurrentDictionary<DeviceAxis, float>(EnumUtils.GetValues<DeviceAxis>().ToDictionary(a => a, _ => 0f));
+
+            _cancellationSource = new CancellationTokenSource();
+            _ = Task.Factory.StartNew(() => UpdateValuesAsync(_cancellationSource.Token),
+                _cancellationSource.Token,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default)
+                .Unwrap();
+        }
+
+        private async Task UpdateValuesAsync(CancellationToken token)
+        {
+            try
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    if (ActiveItem != null)
+                    {
+                        await Execute.OnUIThreadAsync(() =>
+                        {
+                            foreach (var axis in EnumUtils.GetValues<DeviceAxis>())
+                            {
+                                var value = GetValue(axis) * 100;
+                                if (!float.IsFinite(value))
+                                    value = 0;
+
+                                Values[axis] = value;
+                            }
+                        }).ConfigureAwait(false);
+                    }
+
+                    await Task.Delay(32, token).ConfigureAwait(false);
+                }
+            }
+            catch (OperationCanceledException) { }
         }
 
         public void Handle(AppSettingsMessage message)
         {
-            if(message.Type == AppSettingsMessageType.Saving)
+            if (message.Type == AppSettingsMessageType.Saving)
             {
-                message.Settings.Add("MotionSource", JObject.FromObject(new
-                {
-                    ActiveItem = ActiveItem.Name,
-                    Items = Items.Select(i => JObject.FromObject(i))
-                }));
+                if (!message.Settings.EnsureContainsObjects("MotionSource")
+                 || !message.Settings.TryGetObject(out var settings, "MotionSource"))
+                    return;
+
+                if (ActiveItem != null)
+                    settings[nameof(ActiveItem)] = ActiveItem.Name;
             }
             else if (message.Type == AppSettingsMessageType.Loading)
             {
-                if (!message.Settings.ContainsKey("MotionSource"))
+                if (!message.Settings.TryGetObject(out var settings, "MotionSource"))
                     return;
 
-                var motionSettings = message.Settings["MotionSource"];
-                foreach (var itemSettings in (motionSettings["Items"] as JArray))
-                {
-                    var item = Items.FirstOrDefault(i => i.Name == itemSettings["MotionName"].ToString());
-                    if (item == null)
-                        continue;
-
-                    itemSettings.Populate(item);
-                }
-
-                ActiveItem = Items.FirstOrDefault(i => i.Name == motionSettings["ActiveItem"].ToString());
+                if (settings.TryGetValue(nameof(ActiveItem), out var selectedItemToken))
+                    ChangeActiveItem(Items.FirstOrDefault(x => string.Equals(x.Name, selectedItemToken.ToObject<string>())) ?? Items.First(), closePrevious: false);
             }
         }
 
         public float GetValue(DeviceAxis axis) => ActiveItem?.GetValue(axis) ?? float.NaN;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            _cancellationSource?.Cancel();
+            _cancellationSource?.Dispose();
+            _cancellationSource = null;
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

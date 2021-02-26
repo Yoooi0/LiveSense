@@ -79,7 +79,7 @@
             </DockPanel>
         </DataTemplate>
     </materialExtensions:MaterialWindow.TitleTemplate>
-    <material:DialogHost Identifier="RootDialog" DialogTheme="Inherit">
+    <material:DialogHost Identifier="RootDialog" DialogTheme="Inherit" UseLayoutRounding="True">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>

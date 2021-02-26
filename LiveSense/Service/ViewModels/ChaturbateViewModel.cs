@@ -1,4 +1,4 @@
-﻿using LiveSense.Common;
+using LiveSense.Common;
 using LiveSense.Common.Controls;
 using LiveSense.Common.Messages;
 using LiveSense.OutputTarget;
@@ -118,10 +118,7 @@ namespace LiveSense.Service.Chaturbate
                 await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None).ConfigureAwait(false);
         }
 
-        protected override void HandleSettings(JObject settings, AppSettingsMessageType type)
-        {
-            //TODO:
-        }
+        protected override void HandleSettings(JObject settings, AppSettingsMessageType type) { }
 
         private string CreateConnectMessage(string username, string password, string roomPassword)
             => CreateMessage("connect", new

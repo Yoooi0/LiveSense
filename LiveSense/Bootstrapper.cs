@@ -1,10 +1,11 @@
 ﻿using LiveSense.Common;
 using LiveSense.OutputTarget;
-using LiveSense.Motion;
+using LiveSense.MotionSource;
 using LiveSense.Service;
 using LiveSense.ViewModels;
 using Stylet;
 using StyletIoC;
+using LiveSense.MotionSource.TipMenu.ViewModels;
 
 namespace LiveSense
 {
@@ -18,6 +19,8 @@ namespace LiveSense
             builder.Bind<IService>().ToAllImplementations();
             builder.Bind<IMotionSource>().ToAllImplementations();
             builder.Bind<ITipQueue>().ToInstance(new ObservableTipQueue());
+
+            builder.Bind<IScriptCompiler>().ToInstance(new ScriptCompiler());
         }
     }
 }

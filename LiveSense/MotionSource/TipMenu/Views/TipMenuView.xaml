@@ -1,0 +1,342 @@
+﻿<UserControl x:Class="LiveSense.MotionSource.TipMenu.Views.TipMenuView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:material="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:metro="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:s="https://github.com/canton7/Stylet"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             xmlns:local="clr-namespace:LiveSense.MotionSource.TipMenu.ViewModels"
+             xmlns:common="clr-namespace:LiveSense.Common"
+             xmlns:behaviours="clr-namespace:LiveSense.Common.Behaviours"
+             xmlns:controls="clr-namespace:LiveSense.Common.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <TabControl Style="{StaticResource MaterialDesignNavigatilRailTabControl}"
+                material:ColorZoneAssist.Mode="Light">
+        <TabItem Header="{material:PackIcon Kind=CodeBraces, Size=24}"
+                 Width="48" Height="48"
+                 Padding="0"
+                 Style="{StaticResource MaterialDesignNavigationRailTabItem}">
+            <DockPanel LastChildFill="True">
+                <DockPanel DockPanel.Dock="Top" LastChildFill="True">
+                    <Border BorderThickness="0 0 0 1"
+                            Height="35"
+                            BorderBrush="{StaticResource PrimaryHueLightBrush}">
+                        <DockPanel LastChildFill="True"
+                                   Background="{StaticResource MaterialDesignToolBarBackground}">
+                            <DockPanel DockPanel.Dock="Left" LastChildFill="False">
+                                <TextBlock Text="Script"
+                                           Margin="10 0 0 0"
+                                           VerticalAlignment="Center"/>
+                                <ComboBox Style="{StaticResource MaterialDesignComboBox}"
+                                          ItemsSource="{Binding Scripts}"
+                                          SelectedItem="{Binding SelectedScript}"
+                                          SelectionChanged="{s:Action OnSelectedScriptChanged}"
+                                          DisplayMemberPath="Name"
+                                          material:TextFieldAssist.HasClearButton="True"
+                                          material:ComboBoxAssist.ShowSelectedItem="True"
+                                          IsEditable="False"
+                                          Margin="8 0 8 0"
+                                          Width="150"/>
+
+                                <TextBlock Text="Name"
+                                           Margin="10 0 0 0"
+                                           VerticalAlignment="Center"/>
+                                <TextBox DockPanel.Dock="Left"
+                                         Style="{StaticResource MaterialDesignTextBox}"
+                                         Text="{Binding ScriptName, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="8 5 8 5"
+                                         Width="100"/>
+
+                                <Button DockPanel.Dock="Left"
+                                        Style="{StaticResource MaterialDesignProgressToolBarButton}"
+                                        Command="{s:Action SaveScript}"
+                                        IsEnabled="{Binding CanSaveScript}"
+                                        ToolTipService.InitialShowDelay="0"
+                                        ToolTipService.Placement="Top"
+                                        ToolTip="Save">
+                                    <material:PackIcon Width="19" Height="19" Kind="ContentSave"/>
+                                </Button>
+                                <Button DockPanel.Dock="Left"
+                                        Style="{StaticResource MaterialDesignProgressToolBarButton}"
+                                        Command="{s:Action AddScript}"
+                                        IsEnabled="{Binding CanAddScript}"
+                                        ToolTipService.InitialShowDelay="0"
+                                        ToolTipService.Placement="Top"
+                                        ToolTip="Save as">
+                                    <material:PackIcon Width="19" Height="19" Kind="ContentSaveAll"/>
+                                </Button>
+                                
+                                <Button DockPanel.Dock="Left"
+                                        Style="{StaticResource MaterialDesignProgressToolBarButton}"
+                                        Command="{s:Action DeleteScript}"
+                                        IsEnabled="{Binding CanDeleteScript}"
+                                        ToolTipService.InitialShowDelay="0"
+                                        ToolTipService.Placement="Top"
+                                        ToolTip="Delete">
+                                    <material:PackIcon Width="19" Height="19" Kind="TrashCan"/>
+                                </Button>
+                            </DockPanel>
+                        </DockPanel>
+                    </Border>
+                </DockPanel>
+                <Grid DockPanel.Dock="Bottom">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition Height="150" MinHeight="100"/>
+                    </Grid.RowDefinitions>
+                    
+
+                    <avalon:TextEditor SyntaxHighlighting="C#"
+                                       Document="{Binding EditorDocument}"
+                                       Grid.Row="0"
+                                       ShowLineNumbers="True"
+                                       VerticalAlignment="Stretch"
+                                       HorizontalScrollBarVisibility="Auto"
+                                       VerticalScrollBarVisibility="Auto"/>
+                    
+                    <GridSplitter Grid.Row="1" 
+                                  ResizeDirection="Rows" 
+                                  HorizontalAlignment="Stretch" 
+                                  VerticalAlignment="Stretch" 
+                                  ResizeBehavior="PreviousAndNext"/>
+                    
+                    <TextBox Text="{Binding CompilationOutput}"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             material:TextFieldAssist.TextFieldCornerRadius="0"
+                             Grid.Row="2"
+                             BorderBrush="Transparent"
+                             Padding="0"
+                             IsReadOnly="True"
+                             FontFamily="Consolas"
+                             FontWeight="Bold"
+                             AcceptsReturn="True"
+                             Background="White"
+                             VerticalContentAlignment="Stretch"
+                             HorizontalScrollBarVisibility="Visible"
+                             VerticalScrollBarVisibility="Visible"/>
+                </Grid>
+            </DockPanel>
+        </TabItem>
+        <TabItem Header="{material:PackIcon Kind=ClipboardListOutline, Size=24}"
+                 Width="48" Height="48"
+                 Padding="0"
+                 Style="{StaticResource MaterialDesignNavigationRailTabItem}">
+            <DockPanel LastChildFill="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="135"/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition MinHeight="135"/>
+                    </Grid.RowDefinitions>
+
+                    <GroupBox Grid.Row="0" Header="Menu"
+                              Style="{DynamicResource MaterialDesignGroupBox}"
+                              material:ShadowAssist.ShadowDepth="Depth1"
+                              BorderThickness="0">
+                        <GroupBox.HeaderTemplate>
+                            <DataTemplate>
+                                <DockPanel LastChildFill="False" SnapsToDevicePixels="True">
+                                    <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{Binding}" />
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
+                                                Command="{s:Action MoveItemUp}"
+                                                Margin="0 0 10 0"
+                                                Width="32" Height="32">
+                                            <material:PackIcon Kind="ChevronDoubleUp" Height="24" Width="24" />
+                                        </Button>
+                                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
+                                                Command="{s:Action MoveItemDown}"
+                                                Margin="0 0 10 0"
+                                                Width="32" Height="32">
+                                            <material:PackIcon Kind="ChevronDoubleDown" Height="24" Width="24" />
+                                        </Button>
+                                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
+                                                Command="{s:Action AddItem}"
+                                                Width="32" Height="32"
+                                                Margin="0 0 10 0">
+                                            <material:PackIcon Kind="Plus" Height="24" Width="24" />
+                                        </Button>
+                                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
+                                                Command="{s:Action RemoveItem}"
+                                                Width="32" Height="32">
+                                            <material:PackIcon Kind="TrashCanOutline" Height="24" Width="24" />
+                                        </Button>
+                                    </StackPanel>
+                                </DockPanel>
+                            </DataTemplate>
+                        </GroupBox.HeaderTemplate>
+
+                        <DataGrid behaviours:DataGridBehavior.FullRowSelect="True"
+                                  behaviours:DataGridBehavior.CommitRowOnCellEditEnding="True"
+                                  Margin="-9"
+                                  VerticalScrollBarVisibility="Auto"
+                                  ItemsSource="{Binding TipMenuItems}"
+                                  Grid.Row="0"
+                                  CanUserAddRows="False"
+                                  CanUserReorderColumns="False"
+                                  CanUserResizeRows="False"
+                                  CanUserSortColumns="False" 
+                                  AutoGenerateColumns="False" 
+                                  HeadersVisibility="All"
+                                  SelectionMode="Single"
+                                  SelectionUnit="FullRow"
+                                  SelectedItem="{Binding SelectedTipMenuItem}">
+                            <DataGrid.RowStyle>
+                                <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MaterialDesignDataGridRow}">
+                                    <Setter Property="Margin" Value="2 0 0 0"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderThickness" Value="2 0 0 0"/>
+                                            <Setter Property="Margin" Value="0"/>
+                                            <Setter Property="BorderBrush" Value="{StaticResource AccentColorBrush}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource MaterialDesignDataGridRowHoverBackground}" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.RowStyle>
+                            <DataGrid.CellStyle>
+                                <Style TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource MaterialDesignDataGridCell}">
+                                    <Setter Property="BorderThickness" Value="0" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="Transparent" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.CellStyle>
+                            <DataGrid.Columns>
+                                <material:DataGridTextColumn Binding="{Binding AmountFrom}" 
+                                                             Header="From" 
+                                                             Width="100"
+                                                             EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"/>
+                                <material:DataGridTextColumn Binding="{Binding AmountTo}" 
+                                                             Header="To" 
+                                                             Width="100" 
+                                                             EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"/>
+                                <material:DataGridTextColumn Binding="{Binding Duration}" 
+                                                             Header="Duration" 
+                                                             Width="100" 
+                                                             EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"/>
+
+                                <material:DataGridTextColumn Binding="{Binding Actions.Count}" 
+                                                             Header="Actions" 
+                                                             Width="100" 
+                                                             IsReadOnly="True"
+                                                             EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+
+                    <GridSplitter Grid.Row="1" ResizeDirection="Rows" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
+
+                    <GroupBox Grid.Row="2" Header="Actions"
+                              Style="{DynamicResource MaterialDesignGroupBox}"
+                              material:ShadowAssist.ShadowDepth="Depth1"
+                              BorderThickness="0">
+                        <GroupBox.HeaderTemplate>
+                            <DataTemplate>
+                                <DockPanel LastChildFill="False" SnapsToDevicePixels="True">
+                                    <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{Binding}" />
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
+                                                Command="{s:Action AddAction}"
+                                                Width="32" Height="32"
+                                                Margin="0 0 10 0">
+                                            <material:PackIcon Kind="Plus" Height="24" Width="24" />
+                                        </Button>
+                                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
+                                                Command="{s:Action RemoveAction}"
+                                                Width="32" Height="32">
+                                            <material:PackIcon Kind="TrashCanOutline" Height="24" Width="24" />
+                                        </Button>
+                                    </StackPanel>
+                                </DockPanel>
+                            </DataTemplate>
+                        </GroupBox.HeaderTemplate>
+
+                        <DataGrid behaviours:DataGridBehavior.FullRowSelect="True"
+                                  behaviours:DataGridBehavior.CommitRowOnCellEditEnding="True"
+                                  Margin="-9"
+                                  VerticalScrollBarVisibility="Auto"
+                                  ItemsSource="{Binding SelectedTipMenuItem.Actions}"
+                                  SelectedItem="{Binding SelectedAction}"
+                                  SelectionMode="Single"
+                                  CanUserAddRows="False"
+                                  CanUserReorderColumns="False"
+                                  CanUserResizeRows="False"
+                                  CanUserSortColumns="False" 
+                                  AutoGenerateColumns="False" 
+                                  HeadersVisibility="All">
+                            <DataGrid.RowStyle>
+                                <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MaterialDesignDataGridRow}">
+                                    <Setter Property="Margin" Value="2 0 0 0"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderThickness" Value="2 0 0 0"/>
+                                            <Setter Property="Margin" Value="0"/>
+                                            <Setter Property="BorderBrush" Value="{StaticResource AccentColorBrush}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource MaterialDesignDataGridRowHoverBackground}" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.RowStyle>
+                            <DataGrid.CellStyle>
+                                <Style TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource MaterialDesignDataGridCell}">
+                                    <Setter Property="BorderThickness" Value="0" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="Transparent" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.CellStyle>
+                            <DataGrid.Columns>
+                                <material:DataGridComboBoxColumn Header="Script" 
+                                                                 IsEditable="True" 
+                                                                 Width="150"
+                                                                 SelectedValueBinding="{Binding ScriptName}" 
+                                                                 DisplayMemberPath="Name"
+                                                                 SelectedValuePath="Name"
+                                                                 material:TextFieldAssist.HasClearButton="True"
+                                                                 ItemsSourceBinding="{Binding DataContext.Scripts, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"/>
+
+                                <DataGridTemplateColumn Header="Axes">
+                                    <DataGridTemplateColumn.CellStyle>
+                                        <Style TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource MaterialDesignDataGridCell}">
+                                            <Setter Property="Padding" Value="10 0 0 0"/>
+                                            <Setter Property="BorderThickness" Value="0" />
+                                            <Style.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="Transparent" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGridTemplateColumn.CellStyle>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ListBox Style="{StaticResource MaterialDesignToolToggleFlatListBox}"
+                                                     ItemsSource="{Binding Source={controls:EnumBindingSource {x:Type common:DeviceAxis}}}"
+                                                     SelectionMode="Multiple"
+                                                     behaviours:ListBoxBehaviour.SelectedItems="{Binding Axes}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+                </Grid>
+            </DockPanel>
+        </TabItem>
+    </TabControl>
+</UserControl>
