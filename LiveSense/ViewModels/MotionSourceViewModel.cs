@@ -2,7 +2,6 @@
 using LiveSense.Common.Messages;
 using LiveSense.MotionSource;
 using LiveSense.OutputTarget;
-using Newtonsoft.Json.Linq;
 using Stylet;
 using System;
 using System.Collections.Generic;

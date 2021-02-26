@@ -1,12 +1,5 @@
 ﻿using LiveSense.Common;
 using Stylet;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.Loader;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Documents;
 
 namespace LiveSense.MotionSource.TipMenu.ViewModels
 {

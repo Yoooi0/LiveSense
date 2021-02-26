@@ -1,4 +1,4 @@
-using LiveSense.Common;
+﻿using LiveSense.Common;
 using LiveSense.Common.Controls;
 using LiveSense.Common.Messages;
 using LiveSense.OutputTarget;
@@ -30,7 +30,7 @@ namespace LiveSense.Service.Chaturbate
 
         public bool IsConnected => Status == ServiceStatus.Connected;
         public bool IsConnectBusy => Status == ServiceStatus.Connecting || Status == ServiceStatus.Disconnecting;
-        public bool CanToggleConnect => !IsConnectBusy;
+        public bool CanToggleConnect => !string.IsNullOrWhiteSpace(RoomName) && !IsConnectBusy;
 
         protected override async Task RunAsync(CancellationToken token)
         {

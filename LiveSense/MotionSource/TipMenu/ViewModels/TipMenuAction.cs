@@ -1,5 +1,4 @@
 ﻿using LiveSense.Common;
-using LiveSense.MotionSource.TipMenu.ViewModels;
 using Newtonsoft.Json;
 using Stylet;
 

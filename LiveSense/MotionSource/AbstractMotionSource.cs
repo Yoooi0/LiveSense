@@ -3,10 +3,6 @@ using LiveSense.Common.Messages;
 using Newtonsoft.Json.Linq;
 using Stylet;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LiveSense.MotionSource
 {

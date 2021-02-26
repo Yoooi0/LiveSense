@@ -74,7 +74,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                 };
 
                 var random = new Random();
-                var randomId = string.Join("", Enumerable.Range(0, 5).Select(_ => $"{random.Next(0, 15):x}"));
+                var randomId = string.Concat(Enumerable.Range(0, 5).Select(_ => $"{random.Next(0, 15):x}"));
                 var dateId = $"{(long)(DateTime.Now - DateTime.UnixEpoch).TotalMilliseconds:x}";
 
                 var assemblyName = $"Script_{dateId}{randomId}";
