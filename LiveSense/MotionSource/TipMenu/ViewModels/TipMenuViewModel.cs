@@ -56,16 +56,19 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
 
             try
             {
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+
                 while (!token.IsCancellationRequested)
                 {
                     var tip = _queue.Peek(token);
-                    ExecuteTip(tip, token);
+                    ExecuteTip(stopwatch, tip, token);
 
                     if(_queue.FirstOrDefault() == tip)
                         tip = _queue.Dequeue(token);
 
                     if (_queue.Count == 0)
-                        ExecuteReset(500);
+                        ExecuteReset(stopwatch, 500, token);
                 }
             }
             catch (OperationCanceledException)
@@ -73,22 +76,42 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
             }
         }
 
-        private void ExecuteTip(ServiceTip tip, CancellationToken token)
+        private void ExecuteTip(Stopwatch stopwatch, ServiceTip tip, CancellationToken token)
         {
-            float CalculateValue(IEnumerable<TipMenuAction> actions, DeviceAxis axis, float time)
+            float CalculateValue(IEnumerable<TipMenuAction> actions, DeviceAxis axis)
             {
                 var scriptValues = actions.Select(action =>
                 {
                     if (!action.Axes.Contains(axis))
                         return null;
 
-                    return Scripts.FirstOrDefault(s => string.Equals(s.Name, action.ScriptName))?.Instance.Evaluate(time, axis);
+                    return Scripts.FirstOrDefault(s => string.Equals(s.Name, action.ScriptName))?.Instance
+                                  .Evaluate((float)stopwatch.Elapsed.TotalSeconds, axis);
                 });
 
                 return scriptValues.Where(x => x != null && float.IsFinite(x.Value))
                                    .Select(x => x.Value)
                                    .DefaultIfEmpty(float.NaN)
                                    .Average();
+            }
+
+            void UpdatePositions(IEnumerable<TipMenuAction> actions)
+            {
+                foreach (var axis in EnumUtils.GetValues<DeviceAxis>())
+                {
+                    var value = CalculateValue(actions, axis);
+                    if (!float.IsFinite(value))
+                        continue;
+
+                    _devicePositions[axis] = value;
+                }
+            }
+
+            void UpdateResetPositions(IEnumerable<DeviceAxis> idleAxes, Dictionary<DeviceAxis, float> startPositions, float duration)
+            {
+                var resetTime = MathUtils.Clamp01((float)stopwatch.Elapsed.TotalSeconds / duration);
+                foreach (var axis in idleAxes)
+                    _devicePositions[axis] = MathUtils.Lerp(startPositions[axis], axis.DefaultValue(), resetTime);
             }
 
             var item = FindItem(tip.Amount);
@@ -101,15 +124,12 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
             var idleAxes = EnumUtils.GetValues<DeviceAxis>().Except(item.Actions.SelectMany(a => a.Axes).Distinct());
             var devicePositionsCopy = new Dictionary<DeviceAxis, float>(_devicePositions);
 
-            var stopwatch = new Stopwatch();
             const float uiUpdateInterval = 1f / 30f;
             var uiUpdateTick = 0f;
 
-            stopwatch.Start();
-            while(stopwatch.ElapsedMilliseconds <= item.Duration)
+            stopwatch.Restart();
+            while(!token.IsCancellationRequested && stopwatch.ElapsedMilliseconds <= item.Duration)
             {
-                if (token.IsCancellationRequested)
-                    return;
                 if (_queue.FirstOrDefault() != tip)
                     break;
 
@@ -120,48 +140,25 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                     Execute.OnUIThread(() => tip.Progress = MathUtils.Clamp01((float)stopwatch.ElapsedMilliseconds / item.Duration) * 100);
                 }
 
-                foreach(var axis in EnumUtils.GetValues<DeviceAxis>())
-                {
-                    var value = CalculateValue(item.Actions, axis, (float)stopwatch.Elapsed.TotalSeconds);
-                    if (!float.IsFinite(value))
-                        continue;
-
-                    _devicePositions[axis] = value;
-                }
-
-                var resetTime = MathUtils.Clamp01((float)stopwatch.Elapsed.TotalSeconds / Math.Min(item.Duration, 1000));
-                foreach (var axis in idleAxes)
-                    _devicePositions[axis] = MathUtils.Lerp(devicePositionsCopy[axis], axis.DefaultValue(), resetTime);
+                UpdatePositions(item.Actions);
+                UpdateResetPositions(idleAxes, devicePositionsCopy, Math.Min(item.Duration, 1000) / 1000f);
 
                 Thread.Sleep(2);
             }
-
-            foreach (var axis in EnumUtils.GetValues<DeviceAxis>())
-            {
-                var value = CalculateValue(item.Actions, axis, item.Duration);
-                if (!float.IsFinite(value))
-                    continue;
-
-                _devicePositions[axis] = value;
-            }
-
-            foreach (var axis in idleAxes)
-                _devicePositions[axis] = axis.DefaultValue();
         }
 
-        private void ExecuteReset(int duration)
+        private void ExecuteReset(Stopwatch stopwatch, int duration, CancellationToken token)
         {
             var devicePositionsCopy = new Dictionary<DeviceAxis, float>(_devicePositions);
 
-            var time = 0L;
-            var startTime = DateTime.UtcNow.Ticks;
-            while ((time = (DateTime.UtcNow.Ticks - startTime) / TimeSpan.TicksPerMillisecond) <= duration)
+            stopwatch.Restart();
+            while (!token.IsCancellationRequested && stopwatch.ElapsedMilliseconds <= duration)
             {
-                var resetTime = MathUtils.Clamp01((float)time / duration);
+                var resetTime = MathUtils.Clamp01((float)stopwatch.ElapsedMilliseconds / duration);
                 foreach (var axis in EnumUtils.GetValues<DeviceAxis>())
                     _devicePositions[axis] = MathUtils.Lerp(devicePositionsCopy[axis], axis.DefaultValue(), resetTime);
 
-                Thread.Sleep(3);
+                Thread.Sleep(2);
             }
 
             foreach (var axis in EnumUtils.GetValues<DeviceAxis>())
