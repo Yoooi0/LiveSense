@@ -297,7 +297,6 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
         #endregion
 
         #region Menu
-
         public void AddItem() => TipMenuItems.Add(new TipMenuItem());
         public bool CanRemoveItem => SelectedTipMenuItem != null;
         public void RemoveItem()
@@ -333,7 +332,6 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
         #endregion
 
         #region Actions
-
         public bool CanAddAction => SelectedTipMenuItem != null;
         public void AddAction() => SelectedTipMenuItem.Actions.Add(new TipMenuAction());
         public bool CanRemoveAction => SelectedTipMenuItem != null && SelectedAction != null;

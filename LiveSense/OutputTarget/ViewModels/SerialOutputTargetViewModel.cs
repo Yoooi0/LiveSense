@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using LiveSense.Common;
 
 namespace LiveSense.OutputTarget.ViewModels
 {
@@ -91,6 +92,7 @@ namespace LiveSense.OutputTarget.ViewModels
             try
             {
                 var sb = new StringBuilder(256);
+                var lastSentValues = EnumUtils.GetValues<DeviceAxis>().ToDictionary(a => a, _ => float.NaN);
                 while (!token.IsCancellationRequested && serialPort?.IsOpen == true)
                 {
                     var interval = MathF.Max(1, 1000.0f / UpdateRate);
@@ -99,6 +101,10 @@ namespace LiveSense.OutputTarget.ViewModels
                     sb.Clear();
                     foreach (var (axis, value) in Values)
                     {
+                        if (float.IsFinite(lastSentValues[axis]) && MathF.Abs(lastSentValues[axis] - value) * 999 < 1)
+                            continue;
+
+                        lastSentValues[axis] = value;
                         sb.Append(axis)
                           .AppendFormat("{0:000}", value * 999)
                           .AppendFormat("I{0}", (int)interval)
