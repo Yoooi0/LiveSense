@@ -1,4 +1,4 @@
-using ICSharpCode.AvalonEdit.Document;
+﻿using ICSharpCode.AvalonEdit.Document;
 using LiveSense.Common;
 using LiveSense.Common.Messages;
 using LiveSense.Service;
@@ -98,7 +98,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                                    .Average();
             }
 
-            void UpdatePositions(IEnumerable<TipMenuAction> actions)
+            void UpdatePositions(IEnumerable<TipMenuAction> actions, float smoothingDuration)
             {
                 foreach (var axis in EnumUtils.GetValues<DeviceAxis>())
                 {
@@ -106,13 +106,14 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                     if (!float.IsFinite(value))
                         continue;
 
-                    _devicePositions[axis] = value;
+                    var smoothing = MathUtils.Clamp01((float)stopwatch.Elapsed.TotalSeconds / smoothingDuration);
+                    _devicePositions[axis] = MathUtils.Lerp(_devicePositions[axis], value, smoothing * smoothing * smoothing);
                 }
             }
 
-            void UpdateResetPositions(IEnumerable<DeviceAxis> idleAxes, Dictionary<DeviceAxis, float> startPositions, float duration)
+            void UpdateResetPositions(IEnumerable<DeviceAxis> idleAxes, Dictionary<DeviceAxis, float> startPositions, float resetDuration)
             {
-                var resetTime = MathUtils.Clamp01((float)stopwatch.Elapsed.TotalSeconds / duration);
+                var resetTime = MathUtils.Clamp01((float)stopwatch.Elapsed.TotalSeconds / resetDuration);
                 foreach (var axis in idleAxes)
                     _devicePositions[axis] = MathUtils.Lerp(startPositions[axis], axis.DefaultValue(), resetTime);
             }
@@ -121,20 +122,22 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
             if (item == null)
                 return;
 
-            if (item.Duration == 0)
+            if (item.Duration < 1)
                 return;
 
             var idleAxes = EnumUtils.GetValues<DeviceAxis>().Except(item.Actions.SelectMany(a => a.Axes).Distinct());
             var devicePositionsCopy = new Dictionary<DeviceAxis, float>(_devicePositions);
 
             const float uiUpdateInterval = 1f / 30f;
+            var smoothingDuration = Math.Min(item.Duration, 1);
+            var resetDuration = Math.Min(item.Duration, 1);
             var uiUpdateTick = 0f;
 
             foreach(var action in item.Actions)
                 FindScriptByName(action.ScriptName)?.OnBegin();
 
             stopwatch.Restart();
-            while(!token.IsCancellationRequested && stopwatch.ElapsedMilliseconds <= item.Duration)
+            while(!token.IsCancellationRequested && stopwatch.Elapsed.TotalSeconds <= item.Duration)
             {
                 if (_queue.FirstOrDefault() != tip)
                     break;
@@ -143,11 +146,11 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                 if (updateTick > uiUpdateTick)
                 {
                     uiUpdateTick = updateTick;
-                    Execute.OnUIThread(() => tip.Progress = MathUtils.Clamp01((float)stopwatch.ElapsedMilliseconds / item.Duration) * 100);
+                    Execute.OnUIThread(() => tip.Progress = MathUtils.Clamp01((float)stopwatch.Elapsed.TotalSeconds / item.Duration) * 100);
                 }
 
-                UpdatePositions(item.Actions);
-                UpdateResetPositions(idleAxes, devicePositionsCopy, Math.Min(item.Duration, 1000) / 1000f);
+                UpdatePositions(item.Actions, smoothingDuration);
+                UpdateResetPositions(idleAxes, devicePositionsCopy, resetDuration);
 
                 Thread.Sleep(2);
             }

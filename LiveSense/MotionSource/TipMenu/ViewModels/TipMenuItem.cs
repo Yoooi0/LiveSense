@@ -8,14 +8,14 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
     {
         [JsonProperty] public int AmountFrom { get; set; }
         [JsonProperty] public int AmountTo { get; set; }
-        [JsonProperty] public int Duration { get; set; }
+        [JsonProperty] public float Duration { get; set; }
         [JsonProperty] public BindableCollection<TipMenuAction> Actions { get; set; }
 
         public TipMenuItem()
         {
             AmountFrom = 0;
-            AmountTo = 0;
-            Duration = 1000;
+            AmountTo = 100;
+            Duration = 5;
             Actions = new BindableCollection<TipMenuAction>();
         }
     }
