@@ -1,0 +1,15 @@
+﻿{
+  "MotionSource": {
+    "Tip Menu": {
+      "Scripts": {
+        "sin": "KHRpbWUsIGF4aXMpID0+IFNpbih0aW1lICogUEkpIC8gMiArIDAuNWY7",
+        "cos": "KHRpbWUsIGF4aXMpID0+IENvcyh0aW1lICogUEkpIC8gMiArIDAuNWY7",
+        "triangle": "ZmxvYXQgaW50ZXJ2YWwgPSAyOw0KDQoodGltZSwgYXhpcykgew0KCXZhciB0ID0gKHRpbWUgJSBpbnRlcnZhbCkgLyBpbnRlcnZhbDsNCglyZXR1cm4gQWJzKEFicyh0ICogMiAtIDEuNWYpIC0gMSk7DQp9",
+        "saw": "ZmxvYXQgaW50ZXJ2YWwgPSAyOw0KDQoodGltZSwgYXhpcykgPT4gKHRpbWUgJSBpbnRlcnZhbCkgLyBpbnRlcnZhbDs=",
+        "square": "ZmxvYXQgaW50ZXJ2YWwgPSAyOw0KDQoodGltZSwgYXhpcykgew0KCXZhciB0ID0gKHRpbWUgJSBpbnRlcnZhbCkgLyBpbnRlcnZhbDsNCglyZXR1cm4gKHQgPT0gMCB8fCB0ID09IDEpID8gMC41ZiA6ICh0IDwgMC41ZiA/IDEgOiAwKTsNCn0=",
+        "doublebounce": "ZmxvYXQgaW50ZXJ2YWwgPSAyOw0KDQoodGltZSwgYXhpcykgew0KCXZhciB0ID0gKHRpbWUgJSBpbnRlcnZhbCkgLyBpbnRlcnZhbDsNCgl2YXIgeCA9IHRpbWUgKiBQSSAqIDIgLSBQSSAvNDsNCglyZXR1cm4gLShQb3coU2luKHgpLCA1KSArIFBvdyhDb3MoeCksIDUpKSAvIDIgKyAwLjVmOw0KfQ==",
+        "sharpbounce": "ZmxvYXQgaW50ZXJ2YWwgPSAyOw0KDQoodGltZSwgYXhpcykgew0KCXZhciB0ID0gKHRpbWUgJSBpbnRlcnZhbCkgLyBpbnRlcnZhbDsNCgl2YXIgeCA9ICh0aW1lICsgMC40MTk1N2YpICogUEkgLyAyOw0KCXZhciBzID0gU2luKHgpICogU2luKHgpOw0KCXZhciBjID0gQ29zKHgpICogQ29zKHgpOw0KCXJldHVybiBTcXJ0KE1heChjIC0gcywgcyAtIGMpKTsNCn0="
+      }
+    }
+  }
+}

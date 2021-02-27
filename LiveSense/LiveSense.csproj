@@ -32,4 +32,10 @@
     <PackageReference Include="System.IO.Ports" Version="5.0.0" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="LiveSense.config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
