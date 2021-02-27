@@ -80,6 +80,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
         private void ExecuteTip(Stopwatch stopwatch, ServiceTip tip, CancellationToken token)
         {
             TipMenuItem FindItem(int amount) => TipMenuItems.FirstOrDefault(i => amount >= i.AmountFrom && amount <= i.AmountTo);
+            IScript FindScriptByName(string scriptName) => Scripts.FirstOrDefault(s => string.Equals(s.Name, scriptName))?.Instance;
 
             float CalculateValue(IEnumerable<TipMenuAction> actions, DeviceAxis axis)
             {
@@ -88,8 +89,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                     if (!action.Axes.Contains(axis))
                         return null;
 
-                    return Scripts.FirstOrDefault(s => string.Equals(s.Name, action.ScriptName))?.Instance
-                                  .Evaluate((float)stopwatch.Elapsed.TotalSeconds, axis);
+                    return FindScriptByName(action.ScriptName).Evaluate((float)stopwatch.Elapsed.TotalSeconds, axis);
                 });
 
                 return scriptValues.Where(x => x != null && float.IsFinite(x.Value))
@@ -130,6 +130,9 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
             const float uiUpdateInterval = 1f / 30f;
             var uiUpdateTick = 0f;
 
+            foreach(var action in item.Actions)
+                FindScriptByName(action.ScriptName)?.OnBegin();
+
             stopwatch.Restart();
             while(!token.IsCancellationRequested && stopwatch.ElapsedMilliseconds <= item.Duration)
             {
@@ -148,6 +151,9 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
 
                 Thread.Sleep(2);
             }
+
+            foreach (var action in item.Actions)
+                FindScriptByName(action.ScriptName)?.OnEnd();
         }
 
         private void ExecuteReset(Stopwatch stopwatch, int duration, CancellationToken token)

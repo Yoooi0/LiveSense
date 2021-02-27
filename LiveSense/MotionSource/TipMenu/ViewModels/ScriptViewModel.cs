@@ -6,6 +6,8 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
     public interface IScript
     {
         float? Evaluate(float time, DeviceAxis axis);
+        void OnBegin() { }
+        void OnEnd() { }
     }
 
     public class ScriptViewModel : PropertyChangedBase
