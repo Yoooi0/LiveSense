@@ -1,4 +1,4 @@
-﻿using LiveSense.Common;
+using LiveSense.Common;
 using Stylet;
 
 namespace LiveSense.MotionSource.TipMenu.ViewModels
@@ -7,7 +7,6 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
     {
         float? Evaluate(float time, DeviceAxis axis);
         void OnBegin() { }
-        void OnEnd() { }
     }
 
     public class ScriptViewModel : PropertyChangedBase

@@ -1,4 +1,4 @@
-﻿using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Document;
 using LiveSense.Common;
 using LiveSense.Common.Messages;
 using LiveSense.Service;
@@ -154,9 +154,6 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
 
                 Thread.Sleep(2);
             }
-
-            foreach (var action in item.Actions)
-                FindScriptByName(action.ScriptName)?.OnEnd();
         }
 
         private void ExecuteReset(Stopwatch stopwatch, int duration, CancellationToken token)
