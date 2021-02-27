@@ -1,4 +1,4 @@
-﻿using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Document;
 using LiveSense.Common;
 using LiveSense.Common.Messages;
 using LiveSense.Service;
@@ -78,6 +78,8 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
 
         private void ExecuteTip(Stopwatch stopwatch, ServiceTip tip, CancellationToken token)
         {
+            TipMenuItem FindItem(int amount) => TipMenuItems.FirstOrDefault(i => amount >= i.AmountFrom && amount <= i.AmountTo);
+
             float CalculateValue(IEnumerable<TipMenuAction> actions, DeviceAxis axis)
             {
                 var scriptValues = actions.Select(action =>
@@ -166,7 +168,6 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
         }
 
         public override float GetValue(DeviceAxis axis) => _devicePositions[axis];
-        private TipMenuItem FindItem(int amount) => TipMenuItems.FirstOrDefault(i => amount >= i.AmountFrom && amount <= i.AmountTo);
 
         protected override void OnActivate()
         {

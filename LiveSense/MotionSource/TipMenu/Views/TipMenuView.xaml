@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="LiveSense.MotionSource.TipMenu.Views.TipMenuView"
+<UserControl x:Class="LiveSense.MotionSource.TipMenu.Views.TipMenuView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:material="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:metro="http://metro.mahapps.com/winfx/xaml/controls"
@@ -310,7 +310,6 @@
                                                                  SelectedValuePath="Name"
                                                                  material:TextFieldAssist.HasClearButton="True"
                                                                  ItemsSourceBinding="{Binding DataContext.Scripts, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"/>
-
                                 <DataGridTemplateColumn Header="Axes">
                                     <DataGridTemplateColumn.CellStyle>
                                         <Style TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource MaterialDesignDataGridCell}">
