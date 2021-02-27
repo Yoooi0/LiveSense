@@ -20,17 +20,20 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
     public class ScriptCompiler : IScriptCompiler
     {
         private readonly ConcurrentDictionary<IScript, AssemblyLoadContext> _scriptContexts;
+        private readonly Regex _evaluateRegex;
 
         public ScriptCompiler()
         {
             _scriptContexts = new ConcurrentDictionary<IScript, AssemblyLoadContext>();
+            _evaluateRegex = new Regex(@"^\s*\((.+?),\s*(.+?),\s*(.+?)\)",
+                                       RegexOptions.Multiline | RegexOptions.Compiled);
         }
 
         public string Compile(string source, out IScript instance)
         {
-            static string GetFullScriptSource(string source)
+            string GetFullScriptSource(string source)
             {
-                source = Regex.Replace(source, @"\(time,\s*axis\)", "public float? Evaluate(float time, DeviceAxis axis)");
+                source = _evaluateRegex.Replace(source, @"public float? Evaluate(float $1, DeviceAxis $2, float $3)");
 
                 return @$"
                 using System;

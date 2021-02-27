@@ -1,11 +1,11 @@
-using LiveSense.Common;
+﻿using LiveSense.Common;
 using Stylet;
 
 namespace LiveSense.MotionSource.TipMenu.ViewModels
 {
     public interface IScript
     {
-        float? Evaluate(float time, DeviceAxis axis);
+        float? Evaluate(float time, DeviceAxis axis, float duration);
         void OnBegin() { }
     }
 

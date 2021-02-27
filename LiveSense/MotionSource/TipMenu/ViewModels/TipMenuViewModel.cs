@@ -1,4 +1,4 @@
-using ICSharpCode.AvalonEdit.Document;
+﻿using ICSharpCode.AvalonEdit.Document;
 using LiveSense.Common;
 using LiveSense.Common.Messages;
 using LiveSense.Service;
@@ -82,14 +82,14 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
             TipMenuItem FindItem(int amount) => TipMenuItems.FirstOrDefault(i => amount >= i.AmountFrom && amount <= i.AmountTo);
             IScript FindScriptByName(string scriptName) => Scripts.FirstOrDefault(s => string.Equals(s.Name, scriptName))?.Instance;
 
-            float CalculateValue(IEnumerable<TipMenuAction> actions, DeviceAxis axis)
+            float CalculateValue(TipMenuItem item, DeviceAxis axis)
             {
-                var scriptValues = actions.Select(action =>
+                var scriptValues = item.Actions.Select(action =>
                 {
                     if (!action.Axes.Contains(axis))
                         return null;
 
-                    return FindScriptByName(action.ScriptName)?.Evaluate((float)stopwatch.Elapsed.TotalSeconds, axis);
+                    return FindScriptByName(action.ScriptName)?.Evaluate((float)stopwatch.Elapsed.TotalSeconds, axis, item.Duration);
                 });
 
                 return scriptValues.Where(x => x != null && float.IsFinite(x.Value))
@@ -98,11 +98,11 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                                    .Average();
             }
 
-            void UpdatePositions(IEnumerable<TipMenuAction> actions, float smoothingDuration)
+            void UpdatePositions(TipMenuItem item, float smoothingDuration)
             {
                 foreach (var axis in EnumUtils.GetValues<DeviceAxis>())
                 {
-                    var value = CalculateValue(actions, axis);
+                    var value = CalculateValue(item, axis);
                     if (!float.IsFinite(value))
                         continue;
 
@@ -149,7 +149,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                     Execute.OnUIThread(() => tip.Progress = MathUtils.Clamp01((float)stopwatch.Elapsed.TotalSeconds / item.Duration) * 100);
                 }
 
-                UpdatePositions(item.Actions, smoothingDuration);
+                UpdatePositions(item, smoothingDuration);
                 UpdateResetPositions(idleAxes, devicePositionsCopy, resetDuration);
 
                 Thread.Sleep(2);
