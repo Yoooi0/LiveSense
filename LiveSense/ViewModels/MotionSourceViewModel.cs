@@ -16,6 +16,7 @@ namespace LiveSense.ViewModels
         private CancellationTokenSource _cancellationSource;
 
         public ObservableConcurrentDictionary<DeviceAxis, float> Values { get; set; }
+        public bool IsValuesPanelExpanded { get; set; }
 
         public MotionSourceViewModel(IEventAggregator eventAggregator, IEnumerable<IMotionSource> motionSources)
         {
@@ -39,7 +40,7 @@ namespace LiveSense.ViewModels
             {
                 while (!token.IsCancellationRequested)
                 {
-                    if (ActiveItem != null)
+                    if (ActiveItem != null && IsValuesPanelExpanded)
                     {
                         await Execute.OnUIThreadAsync(() =>
                         {

@@ -13,8 +13,9 @@
                            material:ShadowAssist.ShadowDepth="Depth0" 
                            Background="{DynamicResource MaterialDesignBackground}">
                 <Expander HorizontalAlignment="Stretch" 
-                              BorderBrush="{DynamicResource MaterialDesignDivider}"
-                              BorderThickness="0 1 0 0">
+                          IsExpanded="{Binding IsValuesPanelExpanded}"
+                          BorderBrush="{DynamicResource MaterialDesignDivider}"
+                          BorderThickness="0 1 0 0">
                     <Expander.Header>
                         <TextBlock Text="Values" 
                                        FontSize="14"
