@@ -31,6 +31,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
         public TipMenuItem SelectedTipMenuItem { get; set; }
         public TipMenuAction SelectedAction { get; set; }
 
+        public bool IsEditorBusy { get; set; }
         public BindableCollection<ScriptViewModel> Scripts { get; set; }
         public ScriptViewModel SelectedScript { get; set; }
         public TextDocument EditorDocument { get; set; }
@@ -214,6 +215,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                 {
                     Task.Run(() =>
                     {
+                        Execute.OnUIThread(() => IsEditorBusy = true);
                         foreach (var property in scriptsToken.Properties())
                         {
                             var source = Encoding.ASCII.GetString(Convert.FromBase64String(property.Value.ToObject<string>()));
@@ -224,6 +226,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
 
                             Scripts.Add(script);
                         }
+                        Execute.OnUIThread(() => IsEditorBusy = false);
                     }).ConfigureAwait(false);
                 }
             }
@@ -268,10 +271,15 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
             SelectedScript.Name = ScriptName;
             SelectedScript.Source = EditorDocument.Text;
 
-            _compiler.Dispose(SelectedScript.Instance);
-            CompilationOutput = _compiler.Compile(EditorDocument.Text, out var instance);
-
-            SelectedScript.Instance = instance;
+            Task.Run(async () =>
+            {
+                Execute.OnUIThread(() => IsEditorBusy = true);
+                await Task.Delay(500).ConfigureAwait(true);
+                _compiler.Dispose(SelectedScript.Instance);
+                CompilationOutput = _compiler.Compile(SelectedScript.Source, out var instance);
+                SelectedScript.Instance = instance;
+                Execute.OnUIThread(() => IsEditorBusy = false);
+            }).ConfigureAwait(true);
         }
 
         [SuppressPropertyChangedWarnings]

@@ -16,112 +16,6 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <TabControl Style="{StaticResource MaterialDesignNavigatilRailTabControl}"
                 material:ColorZoneAssist.Mode="Light">
-        <TabItem Header="{material:PackIcon Kind=CodeBraces, Size=24}"
-                 Width="48" Height="48"
-                 Padding="0"
-                 Style="{StaticResource MaterialDesignNavigationRailTabItem}">
-            <DockPanel LastChildFill="True">
-                <DockPanel DockPanel.Dock="Top" LastChildFill="True">
-                    <Border BorderThickness="0 0 0 1"
-                            Height="35"
-                            BorderBrush="{StaticResource PrimaryHueLightBrush}">
-                        <DockPanel LastChildFill="True"
-                                   Background="{StaticResource MaterialDesignToolBarBackground}">
-                            <DockPanel DockPanel.Dock="Left" LastChildFill="False">
-                                <TextBlock Text="Script"
-                                           Margin="10 0 0 0"
-                                           VerticalAlignment="Center"/>
-                                <ComboBox Style="{StaticResource MaterialDesignComboBox}"
-                                          ItemsSource="{Binding Scripts}"
-                                          SelectedItem="{Binding SelectedScript}"
-                                          SelectionChanged="{s:Action OnSelectedScriptChanged}"
-                                          DisplayMemberPath="Name"
-                                          material:TextFieldAssist.HasClearButton="True"
-                                          material:ComboBoxAssist.ShowSelectedItem="True"
-                                          IsEditable="False"
-                                          Margin="8 0 8 0"
-                                          Width="150"/>
-
-                                <TextBlock Text="Name"
-                                           Margin="10 0 0 0"
-                                           VerticalAlignment="Center"/>
-                                <TextBox DockPanel.Dock="Left"
-                                         Style="{StaticResource MaterialDesignTextBox}"
-                                         Text="{Binding ScriptName, UpdateSourceTrigger=PropertyChanged}"
-                                         Margin="8 5 8 5"
-                                         Width="100"/>
-
-                                <Button DockPanel.Dock="Left"
-                                        Style="{StaticResource MaterialDesignProgressToolBarButton}"
-                                        Command="{s:Action SaveScript}"
-                                        IsEnabled="{Binding CanSaveScript}"
-                                        ToolTipService.InitialShowDelay="0"
-                                        ToolTipService.Placement="Top"
-                                        ToolTip="Save">
-                                    <material:PackIcon Width="19" Height="19" Kind="ContentSave"/>
-                                </Button>
-                                <Button DockPanel.Dock="Left"
-                                        Style="{StaticResource MaterialDesignProgressToolBarButton}"
-                                        Command="{s:Action AddScript}"
-                                        IsEnabled="{Binding CanAddScript}"
-                                        ToolTipService.InitialShowDelay="0"
-                                        ToolTipService.Placement="Top"
-                                        ToolTip="Save as">
-                                    <material:PackIcon Width="19" Height="19" Kind="ContentSaveAll"/>
-                                </Button>
-                                
-                                <Button DockPanel.Dock="Left"
-                                        Style="{StaticResource MaterialDesignProgressToolBarButton}"
-                                        Command="{s:Action DeleteScript}"
-                                        IsEnabled="{Binding CanDeleteScript}"
-                                        ToolTipService.InitialShowDelay="0"
-                                        ToolTipService.Placement="Top"
-                                        ToolTip="Delete">
-                                    <material:PackIcon Width="19" Height="19" Kind="TrashCan"/>
-                                </Button>
-                            </DockPanel>
-                        </DockPanel>
-                    </Border>
-                </DockPanel>
-                <Grid DockPanel.Dock="Bottom">
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition Height="8"/>
-                        <RowDefinition Height="150" MinHeight="100"/>
-                    </Grid.RowDefinitions>
-                    
-
-                    <avalon:TextEditor SyntaxHighlighting="C#"
-                                       Document="{Binding EditorDocument}"
-                                       Grid.Row="0"
-                                       ShowLineNumbers="True"
-                                       VerticalAlignment="Stretch"
-                                       HorizontalScrollBarVisibility="Auto"
-                                       VerticalScrollBarVisibility="Auto"/>
-                    
-                    <GridSplitter Grid.Row="1" 
-                                  ResizeDirection="Rows" 
-                                  HorizontalAlignment="Stretch" 
-                                  VerticalAlignment="Stretch" 
-                                  ResizeBehavior="PreviousAndNext"/>
-                    
-                    <TextBox Text="{Binding CompilationOutput}"
-                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                             material:TextFieldAssist.TextFieldCornerRadius="0"
-                             Grid.Row="2"
-                             BorderBrush="Transparent"
-                             Padding="0"
-                             IsReadOnly="True"
-                             FontFamily="Consolas"
-                             FontWeight="Bold"
-                             AcceptsReturn="True"
-                             Background="White"
-                             VerticalContentAlignment="Stretch"
-                             HorizontalScrollBarVisibility="Visible"
-                             VerticalScrollBarVisibility="Visible"/>
-                </Grid>
-            </DockPanel>
-        </TabItem>
         <TabItem Header="{material:PackIcon Kind=ClipboardListOutline, Size=24}"
                  Width="48" Height="48"
                  Padding="0"
@@ -336,6 +230,127 @@
                     </GroupBox>
                 </Grid>
             </DockPanel>
+        </TabItem>
+        <TabItem Header="{material:PackIcon Kind=CodeBraces, Size=24}"
+                 Width="48" Height="48"
+                 Padding="0"
+                 Style="{StaticResource MaterialDesignNavigationRailTabItem}">
+            <material:DialogHost IsOpen="{Binding IsEditorBusy}"
+                                 material:ShadowAssist.ShadowDepth="Depth3">
+                <material:DialogHost.DialogContent>
+                    <StackPanel Orientation="Horizontal"
+                                Margin=" 10">
+                        <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                                     Value="0"
+                                     Margin="0 0 10 0"
+                                     IsIndeterminate="True"/>
+                        <TextBlock Text="Compiling..."
+                                   VerticalAlignment="Center"
+                                   FontSize="16"/>
+                    </StackPanel>
+                </material:DialogHost.DialogContent>
+                <DockPanel LastChildFill="True">
+                    <DockPanel DockPanel.Dock="Top" LastChildFill="True">
+                        <Border BorderThickness="0 0 0 1"
+                                Height="35"
+                                BorderBrush="{StaticResource PrimaryHueLightBrush}">
+                            <DockPanel LastChildFill="True"
+                                       Background="{StaticResource MaterialDesignToolBarBackground}">
+                                <DockPanel DockPanel.Dock="Left" LastChildFill="False">
+                                    <TextBlock Text="Script"
+                                               Margin="10 0 0 0"
+                                               VerticalAlignment="Center"/>
+                                    <ComboBox Style="{StaticResource MaterialDesignComboBox}"
+                                              ItemsSource="{Binding Scripts}"
+                                              SelectedItem="{Binding SelectedScript}"
+                                              SelectionChanged="{s:Action OnSelectedScriptChanged}"
+                                              DisplayMemberPath="Name"
+                                              material:TextFieldAssist.HasClearButton="True"
+                                              material:ComboBoxAssist.ShowSelectedItem="True"
+                                              IsEditable="False"
+                                              Margin="8 0 8 0"
+                                              Width="150"/>
+
+                                    <TextBlock Text="Name"
+                                               Margin="10 0 0 0"
+                                               VerticalAlignment="Center"/>
+                                    <TextBox DockPanel.Dock="Left"
+                                             Style="{StaticResource MaterialDesignTextBox}"
+                                             Text="{Binding ScriptName, UpdateSourceTrigger=PropertyChanged}"
+                                             Margin="8 5 8 5"
+                                             Width="100"/>
+
+                                    <Button DockPanel.Dock="Left"
+                                            Style="{StaticResource MaterialDesignProgressToolBarButton}"
+                                            Command="{s:Action SaveScript}"
+                                            IsEnabled="{Binding CanSaveScript}"
+                                            ToolTipService.InitialShowDelay="0"
+                                            ToolTipService.Placement="Top"
+                                            ToolTip="Save">
+                                        <material:PackIcon Width="19" Height="19" Kind="ContentSave"/>
+                                    </Button>
+                                    <Button DockPanel.Dock="Left"
+                                            Style="{StaticResource MaterialDesignProgressToolBarButton}"
+                                            Command="{s:Action AddScript}"
+                                            IsEnabled="{Binding CanAddScript}"
+                                            ToolTipService.InitialShowDelay="0"
+                                            ToolTipService.Placement="Top"
+                                            ToolTip="Save as">
+                                        <material:PackIcon Width="19" Height="19" Kind="ContentSaveAll"/>
+                                    </Button>
+
+                                    <Button DockPanel.Dock="Left"
+                                            Style="{StaticResource MaterialDesignProgressToolBarButton}"
+                                            Command="{s:Action DeleteScript}"
+                                            IsEnabled="{Binding CanDeleteScript}"
+                                            ToolTipService.InitialShowDelay="0"
+                                            ToolTipService.Placement="Top"
+                                            ToolTip="Delete">
+                                        <material:PackIcon Width="19" Height="19" Kind="TrashCan"/>
+                                    </Button>
+                                </DockPanel>
+                            </DockPanel>
+                        </Border>
+                    </DockPanel>
+                    <Grid DockPanel.Dock="Bottom">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="8"/>
+                            <RowDefinition Height="150" MinHeight="100"/>
+                        </Grid.RowDefinitions>
+
+
+                        <avalon:TextEditor SyntaxHighlighting="C#"
+                                           Document="{Binding EditorDocument}"
+                                           Grid.Row="0"
+                                           ShowLineNumbers="True"
+                                           VerticalAlignment="Stretch"
+                                           HorizontalScrollBarVisibility="Auto"
+                                           VerticalScrollBarVisibility="Auto"/>
+
+                        <GridSplitter Grid.Row="1" 
+                                      ResizeDirection="Rows" 
+                                      HorizontalAlignment="Stretch" 
+                                      VerticalAlignment="Stretch" 
+                                      ResizeBehavior="PreviousAndNext"/>
+
+                        <TextBox Text="{Binding CompilationOutput}"
+                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                 material:TextFieldAssist.TextFieldCornerRadius="0"
+                                 Grid.Row="2"
+                                 BorderBrush="Transparent"
+                                 Padding="0"
+                                 IsReadOnly="True"
+                                 FontFamily="Consolas"
+                                 FontWeight="Bold"
+                                 AcceptsReturn="True"
+                                 Background="White"
+                                 VerticalContentAlignment="Stretch"
+                                 HorizontalScrollBarVisibility="Visible"
+                                 VerticalScrollBarVisibility="Visible"/>
+                    </Grid>
+                </DockPanel>
+            </material:DialogHost>
         </TabItem>
     </TabControl>
 </UserControl>
