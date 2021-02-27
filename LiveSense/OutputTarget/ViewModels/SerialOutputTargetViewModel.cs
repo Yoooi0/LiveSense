@@ -82,7 +82,7 @@ namespace LiveSense.OutputTarget.ViewModels
 
                 _ = Execute.OnUIThreadAsync(async () =>
                 {
-                    _ = DialogHost.Show(new ErrorMessageDialog($"Error when opening serial port:\n\n{e}"));
+                    _ = DialogHost.Show(new ErrorMessageDialog($"Error when opening serial port:\n\n{e}"), "RootDialog");
                     await RefreshPorts().ConfigureAwait(true);
                 });
 
@@ -122,7 +122,7 @@ namespace LiveSense.OutputTarget.ViewModels
             {
                 _ = Execute.OnUIThreadAsync(async () =>
                 {
-                    _ = DialogHost.Show(new ErrorMessageDialog($"Unhandled error:\n\n{e}"));
+                    _ = DialogHost.Show(new ErrorMessageDialog($"Unhandled error:\n\n{e}"), "RootDialog");
                     await RefreshPorts().ConfigureAwait(true);
                 });
             }

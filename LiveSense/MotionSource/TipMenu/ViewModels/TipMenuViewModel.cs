@@ -1,4 +1,4 @@
-using ICSharpCode.AvalonEdit.Document;
+﻿using ICSharpCode.AvalonEdit.Document;
 using LiveSense.Common;
 using LiveSense.Common.Messages;
 using LiveSense.Service;

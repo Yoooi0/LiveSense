@@ -113,7 +113,7 @@ namespace LiveSense.Service.Stripchat
             catch (OperationCanceledException) { }
             catch (Exception e)
             {
-                _ = Execute.OnUIThreadAsync(() => _ = DialogHost.Show(new ErrorMessageDialog($"Unhandled error:\n\n{e}")));
+                _ = Execute.OnUIThreadAsync(() => _ = DialogHost.Show(new ErrorMessageDialog($"Unhandled error:\n\n{e}"), "RootDialog"));
             }
 
             if (socket?.State == WebSocketState.Open)

@@ -236,6 +236,7 @@
                  Padding="0"
                  Style="{StaticResource MaterialDesignNavigationRailTabItem}">
             <material:DialogHost IsOpen="{Binding IsEditorBusy}"
+                                 Identifier="TipMenuEditorDialog"
                                  material:ShadowAssist.ShadowDepth="Depth3">
                 <material:DialogHost.DialogContent>
                     <StackPanel Orientation="Horizontal"

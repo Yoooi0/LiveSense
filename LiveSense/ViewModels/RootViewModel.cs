@@ -59,7 +59,7 @@ namespace LiveSense.ViewModels
 
                 if (!settings.TryGetValue("DisablePopup", out var disablePopupToken) || !disablePopupToken.Value<bool>())
                 {
-                    var result = await DialogHost.Show(new InformationMessageDialog(showCheckbox: true)).ConfigureAwait(true);
+                    var result = await DialogHost.Show(new InformationMessageDialog(showCheckbox: true), "RootDialog").ConfigureAwait(true);
                     if (result is not bool disablePopup || !disablePopup)
                         return;
 

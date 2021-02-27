@@ -40,7 +40,7 @@ namespace LiveSense.OutputTarget.ViewModels
                 if (client?.IsConnected == true)
                     client.Close();
 
-                _ = Execute.OnUIThreadAsync(() => _ = DialogHost.Show(new ErrorMessageDialog($"Error when opening pipe:\n\n{e}")));
+                _ = Execute.OnUIThreadAsync(() => _ = DialogHost.Show(new ErrorMessageDialog($"Error when opening pipe:\n\n{e}"), "RootDialog"));
                 return;
             }
 
@@ -71,7 +71,7 @@ namespace LiveSense.OutputTarget.ViewModels
             }
             catch (Exception e)
             {
-                _ = Execute.OnUIThreadAsync(() => _ = DialogHost.Show(new ErrorMessageDialog($"Unhandled error:\n\n{e}")));
+                _ = Execute.OnUIThreadAsync(() => _ = DialogHost.Show(new ErrorMessageDialog($"Unhandled error:\n\n{e}"), "RootDialog"));
             }
 
             if (client?.IsConnected == true)

@@ -65,7 +65,7 @@ namespace LiveSense.OutputTarget.ViewModels
                 if (client.Connected)
                     await client.DisconnectAsync().ConfigureAwait(false);
 
-                _ = Execute.OnUIThreadAsync(() => _ = DialogHost.Show(new ErrorMessageDialog($"Error when connecting to server:\n\n{e}")));
+                _ = Execute.OnUIThreadAsync(() => _ = DialogHost.Show(new ErrorMessageDialog($"Error when connecting to server:\n\n{e}"), "RootDialog"));
                 return;
             }
 
@@ -111,7 +111,7 @@ namespace LiveSense.OutputTarget.ViewModels
             catch (OperationCanceledException) { }
             catch (Exception e)
             {
-                _ = Execute.OnUIThreadAsync(() => _ = DialogHost.Show(new ErrorMessageDialog($"Unhandled error:\n\n{e}")));
+                _ = Execute.OnUIThreadAsync(() => _ = DialogHost.Show(new ErrorMessageDialog($"Unhandled error:\n\n{e}"), "RootDialog"));
             }
 
             if (client.Connected)
