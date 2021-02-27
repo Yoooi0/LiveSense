@@ -18,8 +18,7 @@ namespace LiveSense
             builder.Bind<IOutputTarget>().ToAllImplementations();
             builder.Bind<IService>().ToAllImplementations();
             builder.Bind<IMotionSource>().ToAllImplementations();
-            builder.Bind<ITipQueue>().ToInstance(new ObservableTipQueue());
-
+            builder.Bind<ITipQueue>().ToInstance(new TipQueue());
             builder.Bind<IScriptCompiler>().ToInstance(new ScriptCompiler());
         }
     }
