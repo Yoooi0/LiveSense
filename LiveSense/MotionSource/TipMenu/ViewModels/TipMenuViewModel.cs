@@ -1,4 +1,4 @@
-﻿using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Document;
 using LiveSense.Common;
 using LiveSense.Common.Messages;
 using LiveSense.Service;
@@ -89,7 +89,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                     if (!action.Axes.Contains(axis))
                         return null;
 
-                    return FindScriptByName(action.ScriptName).Evaluate((float)stopwatch.Elapsed.TotalSeconds, axis);
+                    return FindScriptByName(action.ScriptName)?.Evaluate((float)stopwatch.Elapsed.TotalSeconds, axis);
                 });
 
                 return scriptValues.Where(x => x != null && float.IsFinite(x.Value))
