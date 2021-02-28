@@ -9,6 +9,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -202,13 +204,37 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
 
         protected override void HandleSettings(JObject settings, AppSettingsMessageType type)
         {
+            static string Compress(string s)
+            {
+                using var compressed = new MemoryStream();
+                using var brotli = new BrotliStream(compressed, CompressionLevel.Optimal);
+
+                brotli.Write(Encoding.UTF8.GetBytes(s));
+                brotli.Flush();
+
+                return Convert.ToBase64String(compressed.ToArray());
+            }
+
+            static string Decompress(string s)
+            {
+                using var compressed = new MemoryStream();
+                compressed.Write(Convert.FromBase64String(s));
+                compressed.Seek(0, SeekOrigin.Begin);
+
+                using var brotli = new BrotliStream(compressed, CompressionMode.Decompress);
+                using var decompressed = new MemoryStream();
+                brotli.CopyTo(decompressed);
+
+                return Encoding.UTF8.GetString(decompressed.ToArray());
+            }
+            
             if (type == AppSettingsMessageType.Saving)
             {
                 settings[nameof(TipMenuItems)] = JArray.FromObject(TipMenuItems);
 
                 var scriptsToken = new JObject();
                 foreach (var script in Scripts)
-                    scriptsToken.Add(script.Name, Convert.ToBase64String(Encoding.ASCII.GetBytes(script.Source)));
+                    scriptsToken.Add(script.Name, Compress(script.Source));
 
                 settings[nameof(Scripts)] = scriptsToken;
             }
@@ -224,7 +250,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                         Execute.OnUIThread(() => IsEditorBusy = true);
                         foreach (var property in scriptsToken.Properties())
                         {
-                            var source = Encoding.ASCII.GetString(Convert.FromBase64String(property.Value.ToObject<string>()));
+                            var source = Decompress(property.Value.ToObject<string>());
                             var script = new ScriptViewModel(property.Name, source);
 
                             _compiler.Compile(source, out var instance);
