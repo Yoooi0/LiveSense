@@ -24,6 +24,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
         private readonly ITipQueue _queue;
         private readonly IScriptCompiler _compiler;
         private readonly ConcurrentDictionary<DeviceAxis, float> _devicePositions;
+        private readonly TextDocument _fallbackDocument;
         private Thread _thread;
         private CancellationTokenSource _cancellationSource;
 
@@ -36,9 +37,9 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
         public bool IsEditorBusy { get; set; }
         public BindableCollection<ScriptViewModel> Scripts { get; set; }
         public ScriptViewModel SelectedScript { get; set; }
-        public TextDocument EditorDocument { get; set; }
         public string ScriptName { get; set; }
-        public string CompilationOutput { get; set; }
+        public TextDocument CurrentDocument => SelectedScript?.Document ?? _fallbackDocument;
+        public string CompilationOutput => SelectedScript?.CompilationOutput ?? string.Empty;
 
         public TipMenuViewModel(IEventAggregator eventAggregator, IScriptCompiler compiler, ITipQueue queue)
             : base(eventAggregator)
@@ -48,8 +49,8 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
 
             TipMenuItems = new BindableCollection<TipMenuItem>();
             Scripts = new BindableCollection<ScriptViewModel>();
-            EditorDocument = new TextDocument();
 
+            _fallbackDocument = new TextDocument();
             _devicePositions = new ConcurrentDictionary<DeviceAxis, float>(EnumUtils.GetValues<DeviceAxis>().ToDictionary(a => a, a => a.DefaultValue()));
         }
 
@@ -67,7 +68,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                     var tip = _queue.Peek(token);
                     ExecuteTip(stopwatch, tip, token);
 
-                    if(_queue.FirstOrDefault() == tip)
+                    if (_queue.FirstOrDefault() == tip)
                         tip = _queue.Dequeue(token);
 
                     if (_queue.Count == 0)
@@ -135,11 +136,11 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
             var resetDuration = Math.Min(item.Duration, 1);
             var uiUpdateTick = 0f;
 
-            foreach(var action in item.Actions)
+            foreach (var action in item.Actions)
                 FindScriptByName(action.ScriptName)?.OnBegin();
 
             stopwatch.Restart();
-            while(!token.IsCancellationRequested && stopwatch.Elapsed.TotalSeconds <= item.Duration)
+            while (!token.IsCancellationRequested && stopwatch.Elapsed.TotalSeconds <= item.Duration)
             {
                 if (_queue.FirstOrDefault() != tip)
                     break;
@@ -227,14 +228,14 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
 
                 return Encoding.UTF8.GetString(decompressed.ToArray());
             }
-            
+
             if (type == AppSettingsMessageType.Saving)
             {
                 settings[nameof(TipMenuItems)] = JArray.FromObject(TipMenuItems);
 
                 var scriptsToken = new JObject();
                 foreach (var script in Scripts)
-                    scriptsToken.Add(script.Name, Compress(script.Source));
+                    scriptsToken.Add(script.Name, Compress(script.Document.Text));
 
                 settings[nameof(Scripts)] = scriptsToken;
             }
@@ -243,23 +244,26 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                 if (settings.TryGetValue(nameof(TipMenuItems), out var tipMenuItemsToken) && tipMenuItemsToken is JArray tipMenuItems)
                     TipMenuItems.AddRange(tipMenuItems.ToObject<List<TipMenuItem>>());
 
-                if(settings.TryGetObject(out var scriptsToken, nameof(Scripts)))
+                if (settings.TryGetObject(out var scriptsToken, nameof(Scripts)))
                 {
+                    var uiThread = Thread.CurrentThread;
                     Task.Run(() =>
                     {
                         Execute.OnUIThread(() => IsEditorBusy = true);
                         foreach (var property in scriptsToken.Properties())
                         {
                             var source = Decompress(property.Value.ToObject<string>());
-                            var script = new ScriptViewModel(property.Name, source);
+                            var script = new ScriptViewModel(property.Name, source)
+                            {
+                                CompilationOutput = _compiler.Compile(source, out var instance),
+                                Instance = instance
+                            };
 
-                            _compiler.Compile(source, out var instance);
-                            script.Instance = instance;
-
+                            script.Document.SetOwnerThread(uiThread);
                             Scripts.Add(script);
                         }
                         Execute.OnUIThread(() => IsEditorBusy = false);
-                    }).ConfigureAwait(false);
+                    }).ConfigureAwait(true);
                 }
             }
         }
@@ -273,11 +277,28 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
             if (Scripts.Any(s => string.Equals(s.Name, ScriptName, StringComparison.OrdinalIgnoreCase)))
                 return;
 
-            var script = new ScriptViewModel(ScriptName, EditorDocument.Text);
-            CompilationOutput = _compiler.Compile(script.Source, out var instance);
+            var uiThread = Thread.CurrentThread;
+            var source = CurrentDocument.Text;
+            Task.Run(async () =>
+            {
+                Execute.OnUIThread(() => IsEditorBusy = true);
+                await Task.Delay(500).ConfigureAwait(true);
 
-            Scripts.Add(script);
-            SelectedScript = script;
+                var script = new ScriptViewModel(ScriptName, source)
+                {
+                    CompilationOutput = _compiler.Compile(source, out var instance),
+                    Instance = instance
+                };
+
+                script.Document.SetOwnerThread(uiThread);
+
+                Scripts.Add(script);
+                SelectedScript = script;
+
+                NotifyOfPropertyChange(nameof(CompilationOutput));
+
+                Execute.OnUIThread(() => IsEditorBusy = false);
+            });
         }
 
         public bool CanDeleteScript => SelectedScript != null;
@@ -289,9 +310,9 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
             var script = SelectedScript;
             var index = Scripts.IndexOf(script);
             Scripts.Remove(script);
-            _compiler.Dispose(script.Instance);
-
             SelectedScript = Scripts.Count > 0 ? Scripts[Math.Min(index, Scripts.Count - 1)] : null;
+
+            Task.Run(() => _compiler.Dispose(script.Instance)).ConfigureAwait(true);
         }
 
         public bool CanSaveScript => SelectedScript != null && !string.IsNullOrWhiteSpace(ScriptName);
@@ -301,15 +322,19 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                 return;
 
             SelectedScript.Name = ScriptName;
-            SelectedScript.Source = EditorDocument.Text;
-
+            var source = SelectedScript.Document.Text;
             Task.Run(async () =>
             {
                 Execute.OnUIThread(() => IsEditorBusy = true);
+
                 await Task.Delay(500).ConfigureAwait(true);
                 _compiler.Dispose(SelectedScript.Instance);
-                CompilationOutput = _compiler.Compile(SelectedScript.Source, out var instance);
+
+                SelectedScript.CompilationOutput = _compiler.Compile(source, out var instance);
                 SelectedScript.Instance = instance;
+
+                NotifyOfPropertyChange(nameof(CompilationOutput));
+
                 Execute.OnUIThread(() => IsEditorBusy = false);
             }).ConfigureAwait(true);
         }
@@ -320,7 +345,6 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
             if (e.AddedItems.Count == 0)
             {
                 ScriptName = null;
-                EditorDocument.Text = string.Empty;
                 return;
             }
 
@@ -328,12 +352,6 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                 return;
 
             ScriptName = script.Name;
-            EditorDocument.Text = script.Source;
-            if (script.Instance == null)
-            {
-                CompilationOutput = _compiler.Compile(EditorDocument.Text, out var instance);
-                script.Instance = instance;
-            }
         }
         #endregion
 

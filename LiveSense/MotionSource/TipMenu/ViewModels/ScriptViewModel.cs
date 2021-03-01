@@ -1,4 +1,5 @@
-﻿using LiveSense.Common;
+﻿using ICSharpCode.AvalonEdit.Document;
+using LiveSense.Common;
 using Stylet;
 
 namespace LiveSense.MotionSource.TipMenu.ViewModels
@@ -11,9 +12,10 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
 
     public class ScriptViewModel : PropertyChangedBase
     {
+        public TextDocument Document { get; set; }
         public string Name { get; set; }
-        public string Source { get; set; }
         public IScript Instance { get; set; }
+        public string CompilationOutput { get; set; }
 
         public ScriptViewModel(string name)
             : this(name, string.Empty) { }
@@ -21,7 +23,10 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
         public ScriptViewModel(string name, string source)
         {
             Name = name;
-            Source = source;
+            Document = new TextDocument()
+            {
+                Text = source
+            };
         }
     }
 }

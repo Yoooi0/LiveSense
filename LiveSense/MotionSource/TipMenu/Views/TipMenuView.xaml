@@ -320,9 +320,8 @@
                             <RowDefinition Height="150" MinHeight="100"/>
                         </Grid.RowDefinitions>
 
-
                         <avalon:TextEditor SyntaxHighlighting="C#"
-                                           Document="{Binding EditorDocument}"
+                                           Document="{Binding CurrentDocument}"
                                            Grid.Row="0"
                                            ShowLineNumbers="True"
                                            VerticalAlignment="Stretch"
@@ -335,7 +334,7 @@
                                       VerticalAlignment="Stretch" 
                                       ResizeBehavior="PreviousAndNext"/>
 
-                        <TextBox Text="{Binding CompilationOutput}"
+                        <TextBox Text="{Binding CompilationOutput, Mode=OneWay}"
                                  Style="{StaticResource MaterialDesignOutlinedTextBox}"
                                  material:TextFieldAssist.TextFieldCornerRadius="0"
                                  Grid.Row="2"
