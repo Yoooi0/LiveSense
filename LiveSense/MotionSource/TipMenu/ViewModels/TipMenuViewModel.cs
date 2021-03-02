@@ -31,7 +31,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
         public override string Name => "Tip Menu";
 
         public BindableCollection<TipMenuItem> TipMenuItems { get; set; }
-        public TipMenuItem SelectedTipMenuItem { get; set; }
+        public TipMenuItem SelectedItem { get; set; }
         public TipMenuAction SelectedAction { get; set; }
 
         public bool IsEditorBusy { get; set; }
@@ -357,32 +357,32 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
 
         #region Menu
         public void AddItem() => TipMenuItems.Add(new TipMenuItem());
-        public bool CanRemoveItem => SelectedTipMenuItem != null;
+        public bool CanRemoveItem => SelectedItem != null;
         public void RemoveItem()
         {
-            var index = TipMenuItems.IndexOf(SelectedTipMenuItem);
-            TipMenuItems.Remove(SelectedTipMenuItem);
+            var index = TipMenuItems.IndexOf(SelectedItem);
+            TipMenuItems.Remove(SelectedItem);
 
             if (TipMenuItems.Count == 0)
-                SelectedTipMenuItem = null;
+                SelectedItem = null;
             else
-                SelectedTipMenuItem = TipMenuItems[Math.Min(index, TipMenuItems.Count - 1)];
+                SelectedItem = TipMenuItems[Math.Min(index, TipMenuItems.Count - 1)];
         }
 
-        public bool CanMoveItemUp => SelectedTipMenuItem != null;
+        public bool CanMoveItemUp => SelectedItem != null;
         public void MoveItemUp()
         {
-            var index = TipMenuItems.IndexOf(SelectedTipMenuItem);
+            var index = TipMenuItems.IndexOf(SelectedItem);
             if (index == 0)
                 return;
 
             TipMenuItems.Move(index, index - 1);
         }
 
-        public bool CanMoveItemDown => SelectedTipMenuItem != null;
+        public bool CanMoveItemDown => SelectedItem != null;
         public void MoveItemDown()
         {
-            var index = TipMenuItems.IndexOf(SelectedTipMenuItem);
+            var index = TipMenuItems.IndexOf(SelectedItem);
             if (index == TipMenuItems.Count - 1)
                 return;
 
@@ -391,18 +391,18 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
         #endregion
 
         #region Actions
-        public bool CanAddAction => SelectedTipMenuItem != null;
-        public void AddAction() => SelectedTipMenuItem.Actions.Add(new TipMenuAction());
-        public bool CanRemoveAction => SelectedTipMenuItem != null && SelectedAction != null;
+        public bool CanAddAction => SelectedItem != null;
+        public void AddAction() => SelectedItem.Actions.Add(new TipMenuAction());
+        public bool CanRemoveAction => SelectedItem != null && SelectedAction != null;
         public void RemoveAction()
         {
-            var index = SelectedTipMenuItem.Actions.IndexOf(SelectedAction);
-            SelectedTipMenuItem.Actions.Remove(SelectedAction);
+            var index = SelectedItem.Actions.IndexOf(SelectedAction);
+            SelectedItem.Actions.Remove(SelectedAction);
 
-            if (SelectedTipMenuItem.Actions.Count == 0)
+            if (SelectedItem.Actions.Count == 0)
                 SelectedAction = null;
             else
-                SelectedAction = SelectedTipMenuItem.Actions[Math.Min(index, SelectedTipMenuItem.Actions.Count - 1)];
+                SelectedAction = SelectedItem.Actions[Math.Min(index, SelectedItem.Actions.Count - 1)];
         }
         #endregion
     }

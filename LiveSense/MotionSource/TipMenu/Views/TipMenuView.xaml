@@ -79,7 +79,7 @@
                                   HeadersVisibility="All"
                                   SelectionMode="Single"
                                   SelectionUnit="FullRow"
-                                  SelectedItem="{Binding SelectedTipMenuItem}">
+                                  SelectedItem="{Binding SelectedItem}">
                             <DataGrid.RowStyle>
                                 <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MaterialDesignDataGridRow}">
                                     <Setter Property="Margin" Value="2 0 0 0"/>
@@ -160,7 +160,7 @@
                                   behaviours:DataGridBehavior.CommitRowOnCellEditEnding="True"
                                   Margin="-9"
                                   VerticalScrollBarVisibility="Auto"
-                                  ItemsSource="{Binding SelectedTipMenuItem.Actions}"
+                                  ItemsSource="{Binding SelectedItem.Actions}"
                                   SelectedItem="{Binding SelectedAction}"
                                   SelectionMode="Single"
                                   CanUserAddRows="False"
