@@ -28,46 +28,44 @@
                         <RowDefinition MinHeight="135"/>
                     </Grid.RowDefinitions>
 
-                    <GroupBox Grid.Row="0" Header="Menu"
-                              Style="{DynamicResource MaterialDesignGroupBox}"
-                              material:ShadowAssist.ShadowDepth="Depth1"
-                              BorderThickness="0">
-                        <GroupBox.HeaderTemplate>
-                            <DataTemplate>
-                                <DockPanel LastChildFill="False" SnapsToDevicePixels="True">
-                                    <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{Binding}" />
-                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
-                                                Command="{s:Action MoveItemUp}"
-                                                Margin="0 0 10 0"
-                                                Width="32" Height="32">
-                                            <material:PackIcon Kind="ChevronDoubleUp" Height="24" Width="24" />
+                    <DockPanel Grid.Row="0" LastChildFill="True">
+                        <DockPanel DockPanel.Dock="Top" LastChildFill="True">
+                            <Border BorderThickness="0 0 0 1"
+                                    Height="35"
+                                    BorderBrush="{StaticResource PrimaryHueLightBrush}">
+                                <DockPanel LastChildFill="True"
+                                           Background="{StaticResource PrimaryHueMidBrush}">
+                                    <DockPanel DockPanel.Dock="Right" LastChildFill="False">
+                                        <Button Style="{StaticResource MaterialDesignTooBarPrimaryButton}" 
+                                                Command="{s:Action MoveItemUp}">
+                                            <material:PackIcon Kind="ChevronDoubleUp" Height="19" Width="19"/>
                                         </Button>
-                                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
-                                                Command="{s:Action MoveItemDown}"
-                                                Margin="0 0 10 0"
-                                                Width="32" Height="32">
-                                            <material:PackIcon Kind="ChevronDoubleDown" Height="24" Width="24" />
+                                        <Button Style="{StaticResource MaterialDesignTooBarPrimaryButton}" 
+                                                Command="{s:Action MoveItemDown}">
+                                            <material:PackIcon Kind="ChevronDoubleDown" Height="19" Width="19"/>
                                         </Button>
-                                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
-                                                Command="{s:Action AddItem}"
-                                                Width="32" Height="32"
-                                                Margin="0 0 10 0">
-                                            <material:PackIcon Kind="Plus" Height="24" Width="24" />
+                                        <Button Style="{StaticResource MaterialDesignTooBarPrimaryButton}"
+                                                Command="{s:Action AddItem}">
+                                            <material:PackIcon Kind="Plus" Height="19" Width="19"/>
                                         </Button>
-                                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
-                                                Command="{s:Action RemoveItem}"
-                                                Width="32" Height="32">
-                                            <material:PackIcon Kind="TrashCanOutline" Height="24" Width="24" />
+                                        <Button Style="{StaticResource MaterialDesignTooBarPrimaryButton}" 
+                                                Command="{s:Action RemoveItem}">
+                                            <material:PackIcon Kind="TrashCanOutline" Height="19" Width="19"/>
                                         </Button>
-                                    </StackPanel>
+                                    </DockPanel>
+                                    <TextBlock DockPanel.Dock="Left"
+                                               Foreground="{StaticResource PrimaryHueMidForegroundBrush}"
+                                               Margin="10 0 0 0"
+                                               FontSize="16"
+                                               VerticalAlignment="Center" 
+                                               Text="Menu" />
                                 </DockPanel>
-                            </DataTemplate>
-                        </GroupBox.HeaderTemplate>
-
+                            </Border>
+                        </DockPanel>
+                        
                         <DataGrid behaviours:DataGridBehavior.FullRowSelect="True"
                                   behaviours:DataGridBehavior.CommitRowOnCellEditEnding="True"
-                                  Margin="-9"
+                                  DockPanel.Dock="Bottom"
                                   VerticalScrollBarVisibility="Auto"
                                   ItemsSource="{Binding TipMenuItems}"
                                   Grid.Row="0"
@@ -127,38 +125,40 @@
                                                              EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"/>
                             </DataGrid.Columns>
                         </DataGrid>
-                    </GroupBox>
+                    </DockPanel>
 
                     <GridSplitter Grid.Row="1" ResizeDirection="Rows" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
 
-                    <GroupBox Grid.Row="2" Header="Actions"
-                              Style="{DynamicResource MaterialDesignGroupBox}"
-                              material:ShadowAssist.ShadowDepth="Depth1"
-                              BorderThickness="0">
-                        <GroupBox.HeaderTemplate>
-                            <DataTemplate>
-                                <DockPanel LastChildFill="False" SnapsToDevicePixels="True">
-                                    <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{Binding}" />
-                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
-                                                Command="{s:Action AddAction}"
-                                                Width="32" Height="32"
-                                                Margin="0 0 10 0">
-                                            <material:PackIcon Kind="Plus" Height="24" Width="24" />
+                    <DockPanel Grid.Row="2" LastChildFill="True">
+                        <DockPanel DockPanel.Dock="Top" LastChildFill="True">
+                            <Border BorderThickness="0 0 0 1"
+                                    Height="35"
+                                    BorderBrush="{StaticResource PrimaryHueLightBrush}">
+                                <DockPanel LastChildFill="True"
+                                           Background="{StaticResource PrimaryHueMidBrush}">
+                                    <DockPanel DockPanel.Dock="Right" LastChildFill="False">
+                                        <Button Style="{StaticResource MaterialDesignTooBarPrimaryButton}"
+                                                Command="{s:Action AddAction}">
+                                            <material:PackIcon Kind="Plus" Height="19" Width="19"/>
                                         </Button>
-                                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
-                                                Command="{s:Action RemoveAction}"
-                                                Width="32" Height="32">
-                                            <material:PackIcon Kind="TrashCanOutline" Height="24" Width="24" />
+                                        <Button Style="{StaticResource MaterialDesignTooBarPrimaryButton}" 
+                                                Command="{s:Action RemoveAction}">
+                                            <material:PackIcon Kind="TrashCanOutline" Height="19" Width="19"/>
                                         </Button>
-                                    </StackPanel>
+                                    </DockPanel>
+                                    <TextBlock DockPanel.Dock="Left"
+                                               Foreground="{StaticResource PrimaryHueMidForegroundBrush}"
+                                               Margin="10 0 0 0"
+                                               FontSize="16"
+                                               VerticalAlignment="Center" 
+                                               Text="Actions" />
                                 </DockPanel>
-                            </DataTemplate>
-                        </GroupBox.HeaderTemplate>
-
+                            </Border>
+                        </DockPanel>
+                        
                         <DataGrid behaviours:DataGridBehavior.FullRowSelect="True"
                                   behaviours:DataGridBehavior.CommitRowOnCellEditEnding="True"
-                                  Margin="-9"
+                                  DockPanel.Dock="Bottom"
                                   VerticalScrollBarVisibility="Auto"
                                   ItemsSource="{Binding SelectedItem.Actions}"
                                   SelectedItem="{Binding SelectedAction}"
@@ -227,7 +227,7 @@
                                 </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
-                    </GroupBox>
+                    </DockPanel>
                 </Grid>
             </DockPanel>
         </TabItem>
