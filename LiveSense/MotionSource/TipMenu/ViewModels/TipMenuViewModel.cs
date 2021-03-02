@@ -30,7 +30,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
 
         public override string Name => "Tip Menu";
 
-        public BindableCollection<TipMenuItem> TipMenuItems { get; set; }
+        public BindableCollection<TipMenuItem> Items { get; set; }
         public TipMenuItem SelectedItem { get; set; }
         public TipMenuAction SelectedAction { get; set; }
 
@@ -47,7 +47,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
             _compiler = compiler;
             _queue = queue;
 
-            TipMenuItems = new BindableCollection<TipMenuItem>();
+            Items = new BindableCollection<TipMenuItem>();
             Scripts = new BindableCollection<ScriptViewModel>();
 
             _fallbackDocument = new TextDocument();
@@ -82,7 +82,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
 
         private void ExecuteTip(Stopwatch stopwatch, ServiceTip tip, CancellationToken token)
         {
-            TipMenuItem FindItem(int amount) => TipMenuItems.FirstOrDefault(i => amount >= i.AmountFrom && amount <= i.AmountTo);
+            TipMenuItem FindItem(int amount) => Items.FirstOrDefault(i => amount >= i.AmountFrom && amount <= i.AmountTo);
             IScript FindScriptByName(string scriptName) => Scripts.FirstOrDefault(s => string.Equals(s.Name, scriptName))?.Instance;
 
             float CalculateValue(TipMenuItem item, DeviceAxis axis)
@@ -231,7 +231,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
 
             if (type == AppSettingsMessageType.Saving)
             {
-                settings[nameof(TipMenuItems)] = JArray.FromObject(TipMenuItems);
+                settings[nameof(Items)] = JArray.FromObject(Items);
 
                 var scriptsToken = new JObject();
                 foreach (var script in Scripts)
@@ -241,8 +241,8 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
             }
             else if (type == AppSettingsMessageType.Loading)
             {
-                if (settings.TryGetValue(nameof(TipMenuItems), out var tipMenuItemsToken) && tipMenuItemsToken is JArray tipMenuItems)
-                    TipMenuItems.AddRange(tipMenuItems.ToObject<List<TipMenuItem>>());
+                if (settings.TryGetValue(nameof(Items), out var tipMenuItemsToken) && tipMenuItemsToken is JArray tipMenuItems)
+                    Items.AddRange(tipMenuItems.ToObject<List<TipMenuItem>>());
 
                 if (settings.TryGetObject(out var scriptsToken, nameof(Scripts)))
                 {
@@ -356,37 +356,50 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
         #endregion
 
         #region Menu
-        public void AddItem() => TipMenuItems.Add(new TipMenuItem());
+        public void AddItem()
+        {
+            Items.Add(new TipMenuItem());
+
+            NotifyOfPropertyChange(nameof(CanMoveItemDown));
+            NotifyOfPropertyChange(nameof(CanMoveItemUp));
+        }
+
         public bool CanRemoveItem => SelectedItem != null;
         public void RemoveItem()
         {
-            var index = TipMenuItems.IndexOf(SelectedItem);
-            TipMenuItems.Remove(SelectedItem);
+            var index = Items.IndexOf(SelectedItem);
+            Items.Remove(SelectedItem);
 
-            if (TipMenuItems.Count == 0)
+            if (Items.Count == 0)
                 SelectedItem = null;
             else
-                SelectedItem = TipMenuItems[Math.Min(index, TipMenuItems.Count - 1)];
+                SelectedItem = Items[Math.Min(index, Items.Count - 1)];
         }
 
-        public bool CanMoveItemUp => SelectedItem != null;
+        public bool CanMoveItemUp => SelectedItem != null && Items.IndexOf(SelectedItem) > 0;
         public void MoveItemUp()
         {
-            var index = TipMenuItems.IndexOf(SelectedItem);
+            var index = Items.IndexOf(SelectedItem);
             if (index == 0)
                 return;
 
-            TipMenuItems.Move(index, index - 1);
+            Items.Move(index, index - 1);
+
+            NotifyOfPropertyChange(nameof(CanMoveItemDown));
+            NotifyOfPropertyChange(nameof(CanMoveItemUp));
         }
 
-        public bool CanMoveItemDown => SelectedItem != null;
+        public bool CanMoveItemDown => SelectedItem != null && Items.IndexOf(SelectedItem) < Items.Count - 1;
         public void MoveItemDown()
         {
-            var index = TipMenuItems.IndexOf(SelectedItem);
-            if (index == TipMenuItems.Count - 1)
+            var index = Items.IndexOf(SelectedItem);
+            if (index == Items.Count - 1)
                 return;
 
-            TipMenuItems.Move(index, index + 1);
+            Items.Move(index, index + 1);
+
+            NotifyOfPropertyChange(nameof(CanMoveItemDown));
+            NotifyOfPropertyChange(nameof(CanMoveItemUp));
         }
         #endregion
 

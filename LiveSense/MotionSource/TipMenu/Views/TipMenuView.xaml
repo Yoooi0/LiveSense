@@ -67,7 +67,7 @@
                                   behaviours:DataGridBehavior.CommitRowOnCellEditEnding="True"
                                   DockPanel.Dock="Bottom"
                                   VerticalScrollBarVisibility="Auto"
-                                  ItemsSource="{Binding TipMenuItems}"
+                                  ItemsSource="{Binding Items}"
                                   Grid.Row="0"
                                   CanUserAddRows="False"
                                   CanUserReorderColumns="False"
