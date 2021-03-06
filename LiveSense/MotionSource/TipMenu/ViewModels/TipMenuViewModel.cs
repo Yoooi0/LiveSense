@@ -1,7 +1,9 @@
-using ICSharpCode.AvalonEdit.Document;
+﻿using ICSharpCode.AvalonEdit.Document;
 using LiveSense.Common;
 using LiveSense.Common.Messages;
 using LiveSense.Service;
+using Microsoft.WindowsAPICodePack.Dialogs;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PropertyChanged;
 using Stylet;
@@ -233,8 +235,6 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
 
             if (type == AppSettingsMessageType.Saving)
             {
-                settings[nameof(Items)] = JArray.FromObject(Items);
-
                 var scriptsToken = new JObject();
                 foreach (var script in Scripts)
                     scriptsToken.Add(script.Name, Compress(script.Document.Text));
@@ -243,9 +243,6 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
             }
             else if (type == AppSettingsMessageType.Loading)
             {
-                if (settings.TryGetValue(nameof(Items), out var tipMenuItemsToken) && tipMenuItemsToken is JArray tipMenuItems)
-                    Items.AddRange(tipMenuItems.ToObject<List<TipMenuItem>>());
-
                 if (settings.TryGetObject(out var scriptsToken, nameof(Scripts)))
                 {
                     var uiThread = Thread.CurrentThread;
@@ -358,6 +355,40 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
         #endregion
 
         #region Menu
+        public bool CanSaveItems => Items.Count > 0;
+        public void SaveItems()
+        {
+            var dialog = new CommonSaveFileDialog()
+            {
+                InitialDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName)
+            };
+            dialog.Filters.Add(new CommonFileDialogFilter("JSON files", "*.json"));
+
+            if (dialog.ShowDialog() != CommonFileDialogResult.Ok)
+                return;
+
+            var json = JsonConvert.SerializeObject(Items);
+            File.WriteAllText(dialog.FileName, json);
+        }
+
+        public void LoadItems()
+        {
+            var dialog = new CommonOpenFileDialog()
+            {
+                InitialDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName),
+                EnsureFileExists = true
+            };
+            dialog.Filters.Add(new CommonFileDialogFilter("JSON files", "*.json"));
+
+            if (dialog.ShowDialog() != CommonFileDialogResult.Ok)
+                return;
+
+            var items = JsonConvert.DeserializeObject<List<TipMenuItem>>(File.ReadAllText(dialog.FileName));
+
+            Items.Clear();
+            Items.AddRange(items);
+        }
+
         public void AddItem()
         {
             if (SelectedItem != null)
@@ -382,6 +413,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
 
             NotifyOfPropertyChange(nameof(CanMoveItemDown));
             NotifyOfPropertyChange(nameof(CanMoveItemUp));
+            NotifyOfPropertyChange(nameof(CanSaveItems));
         }
 
         public bool CanRemoveItem => SelectedItem != null;
@@ -394,6 +426,10 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                 SelectedItem = null;
             else
                 SelectedItem = Items[Math.Min(index, Items.Count - 1)];
+
+            NotifyOfPropertyChange(nameof(CanMoveItemDown));
+            NotifyOfPropertyChange(nameof(CanMoveItemUp));
+            NotifyOfPropertyChange(nameof(CanSaveItems));
         }
 
         public bool CanMoveItemUp => SelectedItem != null && Items.IndexOf(SelectedItem) > 0;

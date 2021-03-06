@@ -37,6 +37,21 @@
                                            Background="{StaticResource PrimaryHueMidBrush}">
                                     <DockPanel DockPanel.Dock="Right" LastChildFill="False">
                                         <Button Style="{StaticResource MaterialDesignToolBarPrimaryButton}" 
+                                                Command="{s:Action SaveItems}"
+                                                IsEnabled="{Binding CanSaveItems}"
+                                                ToolTipService.InitialShowDelay="0"
+                                                ToolTipService.Placement="Top"
+                                                ToolTip="Save menu">
+                                            <material:PackIcon Kind="FileUploadOutline" Height="19" Width="19"/>
+                                        </Button>
+                                        <Button Style="{StaticResource MaterialDesignToolBarPrimaryButton}" 
+                                                Command="{s:Action LoadItems}"
+                                                ToolTipService.InitialShowDelay="0"
+                                                ToolTipService.Placement="Top"
+                                                ToolTip="Load menu">
+                                            <material:PackIcon Kind="FileDownloadOutline" Height="19" Width="19"/>
+                                        </Button>
+                                        <Button Style="{StaticResource MaterialDesignToolBarPrimaryButton}" 
                                                 Command="{s:Action MoveItemUp}"
                                                 ToolTipService.InitialShowDelay="0"
                                                 ToolTipService.Placement="Top"
