@@ -90,13 +90,17 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                 var scriptValues = item.Actions.Select(action =>
                 {
                     if (!action.Axes.Contains(axis))
-                        return null;
+                        return float.NaN;
 
-                    return FindScriptByName(action.ScriptName)?.Evaluate((float)stopwatch.Elapsed.TotalSeconds, axis, item.Duration);
+                    var script = FindScriptByName(action.ScriptName);
+                    var result = script?.Evaluate((float)stopwatch.Elapsed.TotalSeconds, axis, item.Duration);
+                    if (result == null)
+                        return float.NaN;
+
+                    return MathUtils.Lerp(action.Minimum / 100f, action.Maximum / 100f, result.Value);
                 });
 
-                return scriptValues.Where(x => x != null && float.IsFinite(x.Value))
-                                   .Select(x => x.Value)
+                return scriptValues.Where(x => float.IsFinite(x))
                                    .DefaultIfEmpty(float.NaN)
                                    .Average();
             }
