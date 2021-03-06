@@ -62,28 +62,40 @@
                                 </DockPanel>
                             </Border>
                         </DockPanel>
-                        
-                        <DataGrid behaviours:DataGridBehavior.FullRowSelect="True"
-                                  behaviours:DataGridBehavior.CommitRowOnCellEditEnding="True"
-                                  behaviours:DataGridBehavior.CommitCellOnLostFocus="True"
-                                  behaviours:DataGridBehavior.SelectRowOnCellEdit="True"
-                                  DockPanel.Dock="Bottom"
-                                  VerticalScrollBarVisibility="Auto"
+
+                        <ListView DockPanel.Dock="Bottom"
                                   ItemsSource="{Binding Items}"
-                                  Grid.Row="0"
-                                  CanUserAddRows="False"
-                                  CanUserReorderColumns="False"
-                                  CanUserResizeRows="False"
-                                  CanUserResizeColumns="False"
-                                  CanUserSortColumns="False" 
-                                  AutoGenerateColumns="False" 
-                                  HeadersVisibility="All"
-                                  SelectionMode="Single"
-                                  SelectionUnit="FullRow"
-                                  SelectedItem="{Binding SelectedItem}">
-                            <DataGrid.RowStyle>
-                                <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MaterialDesignDataGridRow}">
-                                    <Setter Property="Margin" Value="2 0 0 0"/>
+                                  SelectedItem="{Binding SelectedItem}"
+                                  material:DataGridAssist.ColumnHeaderPadding="20 5 0 5"
+                                  material:ListViewAssist.ListViewItemPadding="0">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource MaterialDesignGridViewItem}">
+                                    <Setter Property="Height" Value="35"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="Container"
+                                                        BorderThickness="3 0 0 0"
+                                                        BorderBrush="Transparent">
+                                                    <Border x:Name="Border"
+                                                            Padding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}}, Path=(material:ListViewAssist.ListViewItemPadding)}"
+                                                            Background="{TemplateBinding Background}"
+                                                            BorderBrush="{DynamicResource MaterialDesignDivider}"
+                                                            BorderThickness="0 0 0 1"
+                                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
+                                                        <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                                    </Border>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter Property="BorderBrush" TargetName="Container" Value="{StaticResource AccentColorBrush}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
                                     <Style.Triggers>
                                         <Trigger Property="IsSelected" Value="True">
                                             <Setter Property="Background" Value="Transparent" />
@@ -96,38 +108,64 @@
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
-                            </DataGrid.RowStyle>
-                            <DataGrid.CellStyle>
-                                <Style TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource MaterialDesignDataGridCell}">
-                                    <Setter Property="BorderThickness" Value="0" />
-                                    <Style.Triggers>
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="Background" Value="Transparent" />
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </DataGrid.CellStyle>
-                            <DataGrid.Columns>
-                                <material:DataGridTextColumn Binding="{Binding AmountFrom}" 
-                                                             Header="From" 
-                                                             Width="100"
-                                                             EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"/>
-                                <material:DataGridTextColumn Binding="{Binding AmountTo}" 
-                                                             Header="To" 
-                                                             Width="100" 
-                                                             EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"/>
-                                <material:DataGridTextColumn Binding="{Binding Duration}" 
-                                                             Header="Duration" 
-                                                             Width="100" 
-                                                             EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"/>
+                            </ListBox.ItemContainerStyle>
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="From" 
+                                                    Width="100">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding AmountFrom}"
+                                                         Margin="15 0 0 0"
+                                                         BorderBrush="Transparent"
+                                                         TextAlignment="Right"
+                                                         behaviours:ListViewBehavior.SelectRowOnClick="True"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
 
-                                <material:DataGridTextColumn Binding="{Binding Actions.Count}" 
-                                                             Header="Actions" 
-                                                             Width="100" 
-                                                             IsReadOnly="True"
-                                                             EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                                    <GridViewColumn Header="To" 
+                                                    Width="100">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding AmountTo}"
+                                                         Margin="15 0 0 0"
+                                                         BorderBrush="Transparent"
+                                                         TextAlignment="Right"
+                                                         behaviours:ListViewBehavior.SelectRowOnClick="True"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+
+                                    <GridViewColumn Header="Duration" 
+                                                    Width="100">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding Duration, StringFormat=N1}"
+                                                         Margin="15 0 0 0"
+                                                         BorderBrush="Transparent"
+                                                         TextAlignment="Right"
+                                                         material:TextFieldAssist.SuffixText="sec"
+                                                         behaviours:ListViewBehavior.SelectRowOnClick="True"/>
+
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+
+                                    <GridViewColumn Header="Actions" 
+                                                    Width="100">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Actions.Count, Mode=OneWay}"
+                                                           Margin="15 0 0 0"
+                                                           TextAlignment="Right"
+                                                           behaviours:ListViewBehavior.SelectRowOnClick="True"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
                     </DockPanel>
 
                     <GridSplitter Grid.Row="1" ResizeDirection="Rows" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
@@ -158,26 +196,40 @@
                                 </DockPanel>
                             </Border>
                         </DockPanel>
-                        
-                        <DataGrid behaviours:DataGridBehavior.FullRowSelect="True"
-                                  behaviours:DataGridBehavior.CommitRowOnCellEditEnding="True"
-                                  behaviours:DataGridBehavior.CommitCellOnLostFocus="True"
-                                  behaviours:DataGridBehavior.SelectRowOnCellEdit="True"
-                                  DockPanel.Dock="Bottom"
-                                  VerticalScrollBarVisibility="Auto"
+
+                        <ListView DockPanel.Dock="Bottom"
                                   ItemsSource="{Binding SelectedItem.Actions}"
                                   SelectedItem="{Binding SelectedAction}"
-                                  SelectionMode="Single"
-                                  CanUserAddRows="False"
-                                  CanUserReorderColumns="False"
-                                  CanUserResizeRows="False"
-                                  CanUserResizeColumns="False"
-                                  CanUserSortColumns="False" 
-                                  AutoGenerateColumns="False" 
-                                  HeadersVisibility="All">
-                            <DataGrid.RowStyle>
-                                <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MaterialDesignDataGridRow}">
-                                    <Setter Property="Margin" Value="2 0 0 0"/>
+                                  material:DataGridAssist.ColumnHeaderPadding="20 5 0 5"
+                                  material:ListViewAssist.ListViewItemPadding="0">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource MaterialDesignGridViewItem}">
+                                    <Setter Property="Height" Value="35"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="Container"
+                                                        BorderThickness="3 0 0 0"
+                                                        BorderBrush="Transparent">
+                                                    <Border x:Name="Border"
+                                                            Padding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}}, Path=(material:ListViewAssist.ListViewItemPadding)}"
+                                                            Background="{TemplateBinding Background}"
+                                                            BorderBrush="{DynamicResource MaterialDesignDivider}"
+                                                            BorderThickness="0 0 0 1"
+                                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
+                                                        <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                                    </Border>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter Property="BorderBrush" TargetName="Container" Value="{StaticResource AccentColorBrush}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
                                     <Style.Triggers>
                                         <Trigger Property="IsSelected" Value="True">
                                             <Setter Property="Background" Value="Transparent" />
@@ -190,107 +242,85 @@
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
-                            </DataGrid.RowStyle>
-                            <DataGrid.CellStyle>
-                                <Style TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource MaterialDesignDataGridCell}">
-                                    <Setter Property="BorderThickness" Value="0" />
-                                    <Style.Triggers>
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="Background" Value="Transparent" />
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </DataGrid.CellStyle>
-                            <DataGrid.Columns>
-                                <material:DataGridComboBoxColumn Header="Script" 
-                                                                 IsEditable="True" 
-                                                                 Width="150"
-                                                                 SelectedValueBinding="{Binding ScriptName}" 
-                                                                 DisplayMemberPath="Name"
-                                                                 SelectedValuePath="Name"
-                                                                 material:TextFieldAssist.HasClearButton="True"
-                                                                 ItemsSourceBinding="{Binding DataContext.Scripts, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"/>
-                                
-                                <DataGridTemplateColumn Header="Axes">
-                                    <DataGridTemplateColumn.CellStyle>
-                                        <Style TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource MaterialDesignDataGridCell}">
-                                            <Setter Property="Padding" Value="15 0 0 0"/>
-                                            <Setter Property="BorderThickness" Value="0" />
-                                            <Style.Triggers>
-                                                <Trigger Property="IsSelected" Value="True">
-                                                    <Setter Property="Background" Value="Transparent" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </DataGridTemplateColumn.CellStyle>
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <ListBox Style="{StaticResource MaterialDesignToolToggleFlatListBox}"
-                                                     ItemsSource="{Binding Source={controls:EnumBindingSource {x:Type common:DeviceAxis}}}"
-                                                     SelectionMode="Multiple"
-                                                     Margin="0 5 0 5"
-                                                     behaviours:ListBoxBehaviour.SelectedItems="{Binding Axes}">
-                                                <ListBox.ItemContainerStyle>
-                                                    <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource MaterialDesignToolToggleListBoxItem}">
-                                                        <Setter Property="Padding" Value="5 0 5 0"/>
-                                                    </Style>
-                                                </ListBox.ItemContainerStyle>
-                                            </ListBox>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
+                            </ListBox.ItemContainerStyle>
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Script"
+                                                    Width="150">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <ComboBox ItemsSource="{Binding DataContext.Scripts, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"
+                                                          IsEditable="True"
+                                                          Margin="15 0 0 0"
+                                                          SelectedValue="{Binding ScriptName}" 
+                                                          DisplayMemberPath="Name"
+                                                          SelectedValuePath="Name"
+                                                          material:TextFieldAssist.HasClearButton="True"
+                                                          behaviours:ListViewBehavior.SelectRowOnClick="True"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
 
-                                <DataGridTemplateColumn Header="Range"
-                                                        Width="150">
-                                    <DataGridTemplateColumn.CellStyle>
-                                        <Style TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource MaterialDesignDataGridCell}">
-                                            <Setter Property="Padding" Value="10 0 0 0"/>
-                                            <Setter Property="BorderThickness" Value="0" />
-                                            <Style.Triggers>
-                                                <Trigger Property="IsSelected" Value="True">
-                                                    <Setter Property="Background" Value="Transparent" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </DataGridTemplateColumn.CellStyle>
-                                    
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <metro:RangeSlider Style="{StaticResource MaterialDesignRangeSlider}" 
-                                                               HorizontalAlignment="Stretch"
-                                                               Margin="5 0 10 0"
-                                                               Minimum="0" 
-                                                               Maximum="100" 
-                                                               MinRangeWidth="10" 
-                                                               MinRange="1"
-                                                               AutoToolTipPlacement="TopLeft" 
-                                                               LowerValue="{Binding Minimum, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                               UpperValue="{Binding Maximum, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                                                <metro:RangeSlider.AutoToolTipLowerValueTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock HorizontalAlignment="Right" Text="{Binding StringFormat='{}{0:D}%'}" />
-                                                    </DataTemplate>
-                                                </metro:RangeSlider.AutoToolTipLowerValueTemplate>
-                                                <metro:RangeSlider.AutoToolTipUpperValueTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock HorizontalAlignment="Right" Text="{Binding StringFormat='{}{0:D}%'}" />
-                                                    </DataTemplate>
-                                                </metro:RangeSlider.AutoToolTipUpperValueTemplate>
-                                                <metro:RangeSlider.AutoToolTipRangeValuesTemplate>
-                                                    <DataTemplate DataType="mah:RangeSliderAutoTooltipValues">
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="{Binding LowerValue, StringFormat='{}{0:D}%'}" />
-                                                            <TextBlock Text=" - " />
-                                                            <TextBlock Text="{Binding UpperValue, StringFormat='{}{0:D}%'}" />
-                                                        </StackPanel>
-                                                    </DataTemplate>
-                                                </metro:RangeSlider.AutoToolTipRangeValuesTemplate>
-                                            </metro:RangeSlider>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                                    <GridViewColumn Header="Axes"
+                                                    Width="250">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <ListBox Style="{StaticResource MaterialDesignToolToggleFlatListBox}"
+                                                         ItemsSource="{Binding Source={controls:EnumBindingSource {x:Type common:DeviceAxis}}}"
+                                                         SelectionMode="Multiple"
+                                                         Margin="15 0 0 0"
+                                                         behaviours:ListBoxBehaviour.SelectedItems="{Binding Axes}"
+                                                         behaviours:ListViewBehavior.SelectRowOnClick="True">
+                                                    <ListBox.ItemContainerStyle>
+                                                        <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource MaterialDesignToolToggleListBoxItem}">
+                                                            <Setter Property="Padding" Value="5 3 5 3"/>
+                                                        </Style>
+                                                    </ListBox.ItemContainerStyle>
+                                                </ListBox>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+
+                                    <GridViewColumn Header="Range"
+                                                    Width="150">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <metro:RangeSlider Style="{StaticResource MaterialDesignRangeSlider}" 
+                                                                   behaviours:ListViewBehavior.SelectRowOnClick="True"
+                                                                   Margin="15 0 0 0"
+                                                                   Minimum="0" 
+                                                                   Maximum="100" 
+                                                                   MinRangeWidth="10" 
+                                                                   MinRange="1"
+                                                                   AutoToolTipPlacement="TopLeft" 
+                                                                   LowerValue="{Binding Minimum, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                                   UpperValue="{Binding Maximum, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                                    <metro:RangeSlider.AutoToolTipLowerValueTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock HorizontalAlignment="Right" Text="{Binding StringFormat='{}{0:D}%'}" />
+                                                        </DataTemplate>
+                                                    </metro:RangeSlider.AutoToolTipLowerValueTemplate>
+                                                    <metro:RangeSlider.AutoToolTipUpperValueTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock HorizontalAlignment="Right" Text="{Binding StringFormat='{}{0:D}%'}" />
+                                                        </DataTemplate>
+                                                    </metro:RangeSlider.AutoToolTipUpperValueTemplate>
+                                                    <metro:RangeSlider.AutoToolTipRangeValuesTemplate>
+                                                        <DataTemplate DataType="mah:RangeSliderAutoTooltipValues">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="{Binding LowerValue, StringFormat='{}{0:D}%'}" />
+                                                                <TextBlock Text=" - " />
+                                                                <TextBlock Text="{Binding UpperValue, StringFormat='{}{0:D}%'}" />
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </metro:RangeSlider.AutoToolTipRangeValuesTemplate>
+                                                </metro:RangeSlider>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
                     </DockPanel>
                 </Grid>
             </DockPanel>
