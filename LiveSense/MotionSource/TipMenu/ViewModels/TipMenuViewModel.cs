@@ -362,7 +362,26 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
         #region Menu
         public void AddItem()
         {
-            Items.Add(new TipMenuItem());
+            if (SelectedItem != null)
+            {
+                var item = new TipMenuItem()
+                {
+                    AmountFrom = SelectedItem.AmountTo + 1,
+                    AmountTo = SelectedItem.AmountTo + 100,
+                    Duration = SelectedItem.Duration + 1
+                };
+
+                var index = Items.IndexOf(SelectedItem);
+                Items.Insert(index + 1, item);
+                SelectedItem = item;
+            }
+            else
+            {
+                var item = new TipMenuItem();
+                Items.Add(item);
+                SelectedItem = item;
+            }
+
 
             NotifyOfPropertyChange(nameof(CanMoveItemDown));
             NotifyOfPropertyChange(nameof(CanMoveItemUp));
