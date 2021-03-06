@@ -11,7 +11,7 @@
              xmlns:local="clr-namespace:LiveSense.MotionSource.TipMenu.ViewModels"
              xmlns:common="clr-namespace:LiveSense.Common"
              xmlns:behaviours="clr-namespace:LiveSense.Common.Behaviours"
-             xmlns:controls="clr-namespace:LiveSense.Common.Controls"
+             xmlns:controls="clr-namespace:LiveSense.Common.Controls" 
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <TabControl Style="{StaticResource MaterialDesignNavigatilRailTabControl}"
@@ -65,6 +65,8 @@
                         
                         <DataGrid behaviours:DataGridBehavior.FullRowSelect="True"
                                   behaviours:DataGridBehavior.CommitRowOnCellEditEnding="True"
+                                  behaviours:DataGridBehavior.CommitCellOnLostFocus="True"
+                                  behaviours:DataGridBehavior.SelectRowOnCellEdit="True"
                                   DockPanel.Dock="Bottom"
                                   VerticalScrollBarVisibility="Auto"
                                   ItemsSource="{Binding Items}"
@@ -72,6 +74,7 @@
                                   CanUserAddRows="False"
                                   CanUserReorderColumns="False"
                                   CanUserResizeRows="False"
+                                  CanUserResizeColumns="False"
                                   CanUserSortColumns="False" 
                                   AutoGenerateColumns="False" 
                                   HeadersVisibility="All"
@@ -158,6 +161,8 @@
                         
                         <DataGrid behaviours:DataGridBehavior.FullRowSelect="True"
                                   behaviours:DataGridBehavior.CommitRowOnCellEditEnding="True"
+                                  behaviours:DataGridBehavior.CommitCellOnLostFocus="True"
+                                  behaviours:DataGridBehavior.SelectRowOnCellEdit="True"
                                   DockPanel.Dock="Bottom"
                                   VerticalScrollBarVisibility="Auto"
                                   ItemsSource="{Binding SelectedItem.Actions}"
@@ -166,6 +171,7 @@
                                   CanUserAddRows="False"
                                   CanUserReorderColumns="False"
                                   CanUserResizeRows="False"
+                                  CanUserResizeColumns="False"
                                   CanUserSortColumns="False" 
                                   AutoGenerateColumns="False" 
                                   HeadersVisibility="All">

@@ -7,10 +7,10 @@ namespace LiveSense.Common.Behaviours
 {
     public static class DataGridBehavior
     {
-        public static readonly DependencyProperty FullRowSelectProperty = DependencyProperty.RegisterAttached("FullRowSelect",
-            typeof(bool),
-            typeof(DataGridBehavior),
-            new UIPropertyMetadata(false, OnFullRowSelectChanged));
+        public static readonly DependencyProperty FullRowSelectProperty =
+            DependencyProperty.RegisterAttached("FullRowSelect",
+                typeof(bool), typeof(DataGridBehavior),
+                    new UIPropertyMetadata(false, OnFullRowSelectChanged));
 
         public static bool GetFullRowSelect(DataGrid grid)
             => (bool)grid.GetValue(FullRowSelectProperty);
@@ -18,10 +18,10 @@ namespace LiveSense.Common.Behaviours
         public static void SetFullRowSelect(DataGrid grid, bool value)
             => grid.SetValue(FullRowSelectProperty, value);
 
-        public static readonly DependencyProperty CommitRowOnCellEditEndingProperty = DependencyProperty.RegisterAttached("CommitRowOnCellEditEnding",
-            typeof(bool),
-            typeof(DataGridBehavior),
-            new UIPropertyMetadata(false, OnCommitRowOnCellEditEndingChanged));
+        public static readonly DependencyProperty CommitRowOnCellEditEndingProperty =
+            DependencyProperty.RegisterAttached("CommitRowOnCellEditEnding",
+                typeof(bool), typeof(DataGridBehavior),
+                    new UIPropertyMetadata(false, OnCommitRowOnCellEditEndingChanged));
 
         public static bool GetCommitRowOnCellEditEnding(DataGrid grid)
             => (bool)grid.GetValue(CommitRowOnCellEditEndingProperty);
@@ -29,10 +29,53 @@ namespace LiveSense.Common.Behaviours
         public static void SetCommitRowOnCellEditEnding(DataGrid grid, bool value)
             => grid.SetValue(CommitRowOnCellEditEndingProperty, value);
 
+        public static readonly DependencyProperty CommitCellOnLostFocusProperty =
+            DependencyProperty.RegisterAttached("CommitCellOnLostFocus",
+                typeof(bool), typeof(DataGridBehavior),
+                    new UIPropertyMetadata(false, OnCommitCellOnLostFocusChanged));
+
+        public static bool GetCommitCellOnLostFocus(DataGrid grid)
+            => (bool)grid.GetValue(CommitCellOnLostFocusProperty);
+
+        public static void SetCommitCellOnLostFocus(DataGrid grid, bool value)
+            => grid.SetValue(CommitCellOnLostFocusProperty, value);
+
+        public static readonly DependencyProperty SelectRowOnCellEditProperty =
+            DependencyProperty.RegisterAttached("SelectRowOnCellEdit",
+                typeof(bool), typeof(DataGridBehavior),
+                    new UIPropertyMetadata(false, OnSelectRowOnCellEditChanged));
+
+        public static bool GetSelectRowOnCellEdit(DataGrid grid)
+            => (bool)grid.GetValue(SelectRowOnCellEditProperty);
+
+        public static void SetSelectRowOnCellEdit(DataGrid grid, bool value)
+            => grid.SetValue(SelectRowOnCellEditProperty, value);
+
         private static void OnFullRowSelectChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
         {
             if (depObj is not DataGrid grid)
                 return;
+
+            static void OnMouseDown(object sender, MouseButtonEventArgs e)
+            {
+                var dependencyObject = (DependencyObject)e.OriginalSource;
+                while (dependencyObject != null && dependencyObject is not DataGridRow)
+                    dependencyObject = VisualTreeHelper.GetParent(dependencyObject);
+
+                if (dependencyObject is not DataGridRow row)
+                    return;
+
+                row.IsSelected = true;
+
+                dependencyObject = row;
+                while (dependencyObject != null && dependencyObject is not DataGrid)
+                    dependencyObject = VisualTreeHelper.GetParent(dependencyObject);
+
+                if (dependencyObject is not DataGrid dataGrid)
+                    return;
+
+                dataGrid.Focus();
+            }
 
             if (e.NewValue is bool)
             {
@@ -45,10 +88,27 @@ namespace LiveSense.Common.Behaviours
             }
         }
 
+        private static bool _suppressCellEditEndingEvent;
         private static void OnCommitRowOnCellEditEndingChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
         {
             if (depObj is not DataGrid grid)
                 return;
+
+            static void OnCellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+            {
+                if (sender is not DataGrid grid)
+                    return;
+
+                if (e.EditAction == DataGridEditAction.Cancel)
+                    return;
+
+                if (!_suppressCellEditEndingEvent)
+                {
+                    _suppressCellEditEndingEvent = true;
+                    grid.CommitEdit(DataGridEditingUnit.Row, true);
+                    _suppressCellEditEndingEvent = false;
+                }
+            }
 
             if (e.NewValue is bool)
                 grid.CellEditEnding += OnCellEditEnding;
@@ -56,42 +116,50 @@ namespace LiveSense.Common.Behaviours
                 grid.CellEditEnding -= OnCellEditEnding;
         }
 
-        private static bool _suppressCellEditEndingEvent;
-        private static void OnCellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private static void OnCommitCellOnLostFocusChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
         {
-            if (sender is not DataGrid grid)
+            if (depObj is not DataGrid grid)
                 return;
 
-            if (e.EditAction == DataGridEditAction.Cancel)
-                return;
-
-            if (!_suppressCellEditEndingEvent)
+            void OnWindowMouseUp(object sender, MouseEventArgs e)
             {
-                _suppressCellEditEndingEvent = true;
-                grid.CommitEdit(DataGridEditingUnit.Row, true);
-                _suppressCellEditEndingEvent = false;
+                if (sender is not Window window)
+                    return;
+
+                var dependencyObject = (DependencyObject)e.OriginalSource;
+                while (dependencyObject != null && dependencyObject is not DataGrid)
+                    dependencyObject = VisualTreeHelper.GetParent(dependencyObject);
+
+                if (dependencyObject is DataGrid)
+                    return;
+
+                grid.CommitEdit();
+                grid.CancelEdit();
+
+                FocusManager.SetFocusedElement(FocusManager.GetFocusScope(window), null);
+                Keyboard.ClearFocus();
             }
+
+            var window = Application.Current.MainWindow;
+            window.MouseUp -= OnWindowMouseUp;
+            window.MouseUp += OnWindowMouseUp;
         }
 
-        private static void OnMouseDown(object sender, MouseButtonEventArgs e)
+        private static void OnSelectRowOnCellEditChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
         {
-            var dependencyObject = (DependencyObject)e.OriginalSource;
-            while ((dependencyObject != null) && !(dependencyObject is DataGridRow))
-                dependencyObject = VisualTreeHelper.GetParent(dependencyObject);
-
-            if (dependencyObject is not DataGridRow row)
+            if (depObj is not DataGrid grid)
                 return;
 
-            row.IsSelected = true;
+            static void OnPreparingCellForEdit(object sender, DataGridPreparingCellForEditEventArgs e)
+            {
+                if (sender is not DataGrid grid)
+                    return;
 
-            dependencyObject = row;
-            while ((dependencyObject != null) && !(dependencyObject is DataGrid))
-                dependencyObject = VisualTreeHelper.GetParent(dependencyObject);
+                grid.SelectedIndex = e.Row.GetIndex();
+            }
 
-            if (dependencyObject is not DataGrid dataGrid)
-                return;
-
-            dataGrid.Focus();
+            grid.PreparingCellForEdit -= OnPreparingCellForEdit;
+            grid.PreparingCellForEdit += OnPreparingCellForEdit;
         }
     }
 }

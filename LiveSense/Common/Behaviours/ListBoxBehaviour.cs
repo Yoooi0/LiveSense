@@ -8,9 +8,8 @@ namespace LiveSense.Common.Behaviours
     public class ListBoxBehaviour
     {
         public static readonly DependencyProperty SelectedItemsProperty =
-      DependencyProperty.RegisterAttached
-      ("SelectedItems", typeof(IList), typeof(ListBoxBehaviour),
-      new PropertyMetadata(default(IList), OnAttach));
+            DependencyProperty.RegisterAttached("SelectedItems", typeof(IList), typeof(ListBoxBehaviour),
+                new PropertyMetadata(default(IList), OnAttach));
 
         public static void SetSelectedItems(DependencyObject d, IList value)
         {
