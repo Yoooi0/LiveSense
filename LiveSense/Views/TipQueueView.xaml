@@ -10,53 +10,79 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <material:Card material:ShadowAssist.ShadowDepth="Depth1" Margin="10">
-        <GroupBox Grid.Row="0" Header="Queue"
-                      Style="{DynamicResource MaterialDesignGroupBox}"
-                      material:ShadowAssist.ShadowDepth="Depth1"
-                      BorderThickness="0">
-            <GroupBox.HeaderTemplate>
-                <DataTemplate>
-                    <DockPanel LastChildFill="False" >
-                        <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{Binding}" />
-                        <material:PopupBox Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}" 
-                                           material:ShadowAssist.ShadowDepth="Depth1" 
-                                           DockPanel.Dock="Right"
-                                           Background="{StaticResource PrimaryHueLightBrush}"
-                                           Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
-                                           Width="32" Height="32"
-                                           PlacementMode="BottomAndAlignCentres"
-                                           StaysOpen="True"
-                                           PopupMode="Click">
-                            <StackPanel>
-                                <Button material:ShadowAssist.ShadowDepth="Depth2" Command="{s:Action PublishTip}" Content="1"     CommandParameter="1"/>
-                                <Button material:ShadowAssist.ShadowDepth="Depth2" Command="{s:Action PublishTip}" Content="10"    CommandParameter="10"/>
-                                <Button material:ShadowAssist.ShadowDepth="Depth2" Command="{s:Action PublishTip}" Content="100"   CommandParameter="100"/>
-                                <Button material:ShadowAssist.ShadowDepth="Depth2" Command="{s:Action PublishTip}" Content="1000"  CommandParameter="1000"/>
-                                <Button material:ShadowAssist.ShadowDepth="Depth2" Command="{s:Action PublishTip}" Content="10000" CommandParameter="10000"/>
-                                <Button material:ShadowAssist.ShadowDepth="Depth2" Command="{s:Action PublishTip}" Content="?"     CommandParameter="-1"/>
-                            </StackPanel>
-                        </material:PopupBox>
-                        <Button DockPanel.Dock="Right" 
-                                    Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
+        <DockPanel LastChildFill="True">
+            <DockPanel DockPanel.Dock="Top" LastChildFill="True">
+                <Border BorderThickness="0 0 0 1"
+                            Height="35"
+                            BorderBrush="{StaticResource PrimaryHueLightBrush}">
+                    <DockPanel LastChildFill="True"
+                                    Background="{StaticResource PrimaryHueMidBrush}">
+                        <DockPanel DockPanel.Dock="Right" LastChildFill="False">
+                            <Button DockPanel.Dock="Right" 
+                                    Style="{StaticResource MaterialDesignToolBarPrimaryButton}"
                                     Command="{s:Action ClearQueue}"
-                                    Margin="0 0 10 0"
-                                    Width="32" Height="32">
-                            <material:PackIcon Kind="DeleteEmptyOutline" Height="20" Width="20" />
-                        </Button>
-                    </DockPanel>
-                </DataTemplate>
-            </GroupBox.HeaderTemplate>
+                                    IsEnabled="{Binding TipQueue.Count, Converter={StaticResource NotZeroConverter}}"
+                                    ToolTipService.InitialShowDelay="0"
+                                    ToolTipService.Placement="Top"
+                                    ToolTip="Clear tips">
+                                <material:PackIcon Kind="DeleteEmptyOutline" Height="19" Width="19" />
+                            </Button>
 
-            <ScrollViewer CanContentScroll="True" 
-                              VerticalScrollBarVisibility="Disabled" 
-                              HorizontalScrollBarVisibility="Auto">
+                            <material:PopupBox Style="{StaticResource MaterialDesignToolBarPrimaryPopupBox}"
+                                               StaysOpen="True" 
+                                               PlacementMode="TopAndAlignCentres"
+                                               ToolTipService.InitialShowDelay="0"
+                                               ToolTipService.Placement="Top"
+                                               ToolTip="Add tip">
+                                <material:PopupBox.ToggleContent>
+                                    <Border Width="35" Height="35">
+                                        <material:PackIcon Kind="Plus" 
+                                                           Width="19" 
+                                                           Height="19" 
+                                                           HorizontalAlignment="Center" 
+                                                           VerticalAlignment="Center"/>
+                                    </Border>
+                                </material:PopupBox.ToggleContent>
+                                <Grid MaxWidth="300" Margin="10">
+                                    <WrapPanel Orientation="Horizontal">
+                                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Width="50" Command="{s:Action PublishTip}" CommandParameter="1"     Content="1"     Margin="2" Padding="0"/>
+                                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Width="50" Command="{s:Action PublishTip}" CommandParameter="10"    Content="10"    Margin="2" Padding="0"/>
+                                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Width="50" Command="{s:Action PublishTip}" CommandParameter="25"    Content="25"    Margin="2" Padding="0"/>
+                                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Width="50" Command="{s:Action PublishTip}" CommandParameter="50"    Content="50"    Margin="2" Padding="0"/>
+                                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Width="50" Command="{s:Action PublishTip}" CommandParameter="100"   Content="100"   Margin="2" Padding="0"/>
+                                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Width="50" Command="{s:Action PublishTip}" CommandParameter="250"   Content="250"   Margin="2" Padding="0"/>
+                                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Width="50" Command="{s:Action PublishTip}" CommandParameter="500"   Content="500"   Margin="2" Padding="0"/>
+                                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Width="50" Command="{s:Action PublishTip}" CommandParameter="1000"  Content="1000"  Margin="2" Padding="0"/>
+                                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Width="50" Command="{s:Action PublishTip}" CommandParameter="2500"  Content="2500"  Margin="2" Padding="0"/>
+                                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Width="50" Command="{s:Action PublishTip}" CommandParameter="5000"  Content="5000"  Margin="2" Padding="0"/>
+                                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Width="50" Command="{s:Action PublishTip}" CommandParameter="10000" Content="10000" Margin="2" Padding="0"/>
+                                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Width="50" Command="{s:Action PublishTip}" CommandParameter="-1" Margin="2" Padding="0">
+                                            <material:PackIcon Kind="DiceMultipleOutline" Width="24" Height="24"/>
+                                        </Button>
+                                    </WrapPanel>
+                                </Grid>
+                            </material:PopupBox>
+                        </DockPanel>
+                        <TextBlock DockPanel.Dock="Left"
+                                   Foreground="{StaticResource PrimaryHueMidForegroundBrush}"
+                                   Margin="10 0 0 0"
+                                   FontSize="16"
+                                   VerticalAlignment="Center" 
+                                   Text="Queue" />
+                    </DockPanel>
+                </Border>
+            </DockPanel>
+            <ScrollViewer DockPanel.Dock="Bottom"
+                          CanContentScroll="True" 
+                          VerticalScrollBarVisibility="Disabled" 
+                          HorizontalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding TipQueue}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <material:Card UniformCornerRadius="5" 
-                                               material:ShadowAssist.ShadowDepth="Depth1" 
-                                               Margin="10 10 10 0" 
-                                               Height="32">
+                                                material:ShadowAssist.ShadowDepth="Depth1" 
+                                                Margin="10 10 10 0" 
+                                                Height="32">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="26"/>
@@ -68,10 +94,10 @@
                                                         HorizontalAlignment="Stretch" 
                                                         VerticalAlignment="Stretch">
                                         <material:PackIcon Kind="StarRate" 
-                                                           Height="16" 
-                                                           Width="16"
-                                                           VerticalAlignment="Center" 
-                                                           HorizontalAlignment="Center" />
+                                                            Height="16" 
+                                                            Width="16"
+                                                            VerticalAlignment="Center" 
+                                                            HorizontalAlignment="Center" />
                                     </material:ColorZone>
 
                                     <Grid Grid.Column="1">
@@ -81,7 +107,7 @@
                                         </Grid.RowDefinitions>
 
                                         <DockPanel LastChildFill="False"
-                                                   Grid.Row="0">
+                                                    Grid.Row="0">
                                             <TextBlock DockPanel.Dock="Left" Margin="10 0 0 0" Text="{Binding Amount}" VerticalAlignment="Center"/>
                                             <TextBlock DockPanel.Dock="Left" Margin="10 0 0 0" Text="{Binding Username}" VerticalAlignment="Center"/>
                                             <TextBlock DockPanel.Dock="Left" Margin="10 0 0 0" Text="@" VerticalAlignment="Center" FontSize="10" Typography.Capitals="AllSmallCaps"/>
@@ -89,9 +115,9 @@
                                         </DockPanel>
 
                                         <ProgressBar Grid.Row="1"
-                                                     material:TransitionAssist.DisableTransitions="True"
-                                                     Value="{Binding Progress, TargetNullValue=0}" 
-                                                     Visibility="{Binding Progress, Converter={StaticResource NullableToVisibilityConverter}}"/>
+                                                        material:TransitionAssist.DisableTransitions="True"
+                                                        Value="{Binding Progress, TargetNullValue=0}" 
+                                                        Visibility="{Binding Progress, Converter={StaticResource NullableToVisibilityConverter}}"/>
                                     </Grid>
                                 </Grid>
                             </material:Card>
@@ -99,6 +125,6 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
-        </GroupBox>
+        </DockPanel>
     </material:Card>
 </UserControl>

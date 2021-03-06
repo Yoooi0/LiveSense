@@ -12,6 +12,8 @@ namespace LiveSense.Common
 {
     public interface ITipQueue : IReadOnlyCollection<ServiceTip>, IDisposable
     {
+        public int Count { get; }
+
         void Clear();
         void Enqueue(ServiceTip tip);
         ServiceTip Peek(CancellationToken token);

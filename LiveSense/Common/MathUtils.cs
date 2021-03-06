@@ -4,6 +4,13 @@ namespace LiveSense.Common
 {
     public static class MathUtils
     {
+        private static readonly Random _random;
+
+        static MathUtils()
+        {
+            _random = new Random();
+        }
+
         public static float Clamp(float x, float from, float to)
                     => from <= to ? Math.Max(Math.Min(x, to), from) : Math.Min(Math.Max(x, to), from);
 
@@ -20,5 +27,8 @@ namespace LiveSense.Common
             a = b;
             b = temp;
         }
+
+        public static int Random(int from, int to) => _random.Next(from, to);
+        public static double Random() => _random.NextDouble();
     }
 }

@@ -14,7 +14,15 @@ namespace LiveSense.ViewModels
         }
 
         public void PublishTip(string amount)
-            => TipQueue.Enqueue(new ServiceTip("Manual", "Anonymous", int.Parse(amount)));
+        {
+            if (!int.TryParse(amount, out var result))
+                return;
+
+            if (result < 0)
+                result = MathUtils.Random(1, 500);
+
+            TipQueue.Enqueue(new ServiceTip("Manual", "Anonymous", result));
+        }
 
         public void ClearQueue()
             => TipQueue.Clear();
