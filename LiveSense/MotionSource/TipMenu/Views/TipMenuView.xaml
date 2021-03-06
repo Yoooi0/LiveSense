@@ -37,19 +37,31 @@
                                            Background="{StaticResource PrimaryHueMidBrush}">
                                     <DockPanel DockPanel.Dock="Right" LastChildFill="False">
                                         <Button Style="{StaticResource MaterialDesignToolBarPrimaryButton}" 
-                                                Command="{s:Action MoveItemUp}">
+                                                Command="{s:Action MoveItemUp}"
+                                                ToolTipService.InitialShowDelay="0"
+                                                ToolTipService.Placement="Top"
+                                                ToolTip="Move item up">
                                             <material:PackIcon Kind="ChevronDoubleUp" Height="19" Width="19"/>
                                         </Button>
                                         <Button Style="{StaticResource MaterialDesignToolBarPrimaryButton}" 
-                                                Command="{s:Action MoveItemDown}">
+                                                Command="{s:Action MoveItemDown}"
+                                                ToolTipService.InitialShowDelay="0"
+                                                ToolTipService.Placement="Top"
+                                                ToolTip="Move item down">
                                             <material:PackIcon Kind="ChevronDoubleDown" Height="19" Width="19"/>
                                         </Button>
                                         <Button Style="{StaticResource MaterialDesignToolBarPrimaryButton}"
-                                                Command="{s:Action AddItem}">
+                                                Command="{s:Action AddItem}"
+                                                ToolTipService.InitialShowDelay="0"
+                                                ToolTipService.Placement="Top"
+                                                ToolTip="Add item">
                                             <material:PackIcon Kind="Plus" Height="19" Width="19"/>
                                         </Button>
                                         <Button Style="{StaticResource MaterialDesignToolBarPrimaryButton}" 
-                                                Command="{s:Action RemoveItem}">
+                                                Command="{s:Action RemoveItem}"
+                                                ToolTipService.InitialShowDelay="0"
+                                                ToolTipService.Placement="Top"
+                                                ToolTip="Remove item">
                                             <material:PackIcon Kind="TrashCanOutline" Height="19" Width="19"/>
                                         </Button>
                                     </DockPanel>
@@ -179,11 +191,17 @@
                                            Background="{StaticResource PrimaryHueMidBrush}">
                                     <DockPanel DockPanel.Dock="Right" LastChildFill="False">
                                         <Button Style="{StaticResource MaterialDesignToolBarPrimaryButton}"
-                                                Command="{s:Action AddAction}">
+                                                Command="{s:Action AddAction}"
+                                                ToolTipService.InitialShowDelay="0"
+                                                ToolTipService.Placement="Top"
+                                                ToolTip="Add action">
                                             <material:PackIcon Kind="Plus" Height="19" Width="19"/>
                                         </Button>
                                         <Button Style="{StaticResource MaterialDesignToolBarPrimaryButton}" 
-                                                Command="{s:Action RemoveAction}">
+                                                Command="{s:Action RemoveAction}"
+                                                ToolTipService.InitialShowDelay="0"
+                                                ToolTipService.Placement="Top"
+                                                ToolTip="Remove action">
                                             <material:PackIcon Kind="TrashCanOutline" Height="19" Width="19"/>
                                         </Button>
                                     </DockPanel>
