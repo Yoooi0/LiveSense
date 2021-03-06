@@ -30,11 +30,12 @@
                 <StackPanel DockPanel.Dock="Left" 
                             Orientation="Horizontal" 
                             VerticalAlignment="Center">
-                    <material:PackIcon Style="{StaticResource WindowButtonIconStyle}"
-                                        Foreground="White"
-                                        Kind="Star" 
-                                        Margin="8,0,0,0" 
-                                        RenderTransformOrigin="0.5, 0.5">
+                    <material:PackIcon Foreground="White"
+                                       Kind="Star" 
+                                       Margin="8,0,0,0" 
+                                       Width="24"
+                                       Height="24"
+                                       RenderTransformOrigin="0.5, 0.5">
                         <material:PackIcon.RenderTransform>
                             <ScaleTransform/>
                         </material:PackIcon.RenderTransform>

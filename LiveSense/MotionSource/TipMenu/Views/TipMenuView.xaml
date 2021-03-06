@@ -36,19 +36,19 @@
                                 <DockPanel LastChildFill="True"
                                            Background="{StaticResource PrimaryHueMidBrush}">
                                     <DockPanel DockPanel.Dock="Right" LastChildFill="False">
-                                        <Button Style="{StaticResource MaterialDesignTooBarPrimaryButton}" 
+                                        <Button Style="{StaticResource MaterialDesignToolBarPrimaryButton}" 
                                                 Command="{s:Action MoveItemUp}">
                                             <material:PackIcon Kind="ChevronDoubleUp" Height="19" Width="19"/>
                                         </Button>
-                                        <Button Style="{StaticResource MaterialDesignTooBarPrimaryButton}" 
+                                        <Button Style="{StaticResource MaterialDesignToolBarPrimaryButton}" 
                                                 Command="{s:Action MoveItemDown}">
                                             <material:PackIcon Kind="ChevronDoubleDown" Height="19" Width="19"/>
                                         </Button>
-                                        <Button Style="{StaticResource MaterialDesignTooBarPrimaryButton}"
+                                        <Button Style="{StaticResource MaterialDesignToolBarPrimaryButton}"
                                                 Command="{s:Action AddItem}">
                                             <material:PackIcon Kind="Plus" Height="19" Width="19"/>
                                         </Button>
-                                        <Button Style="{StaticResource MaterialDesignTooBarPrimaryButton}" 
+                                        <Button Style="{StaticResource MaterialDesignToolBarPrimaryButton}" 
                                                 Command="{s:Action RemoveItem}">
                                             <material:PackIcon Kind="TrashCanOutline" Height="19" Width="19"/>
                                         </Button>
@@ -178,11 +178,11 @@
                                 <DockPanel LastChildFill="True"
                                            Background="{StaticResource PrimaryHueMidBrush}">
                                     <DockPanel DockPanel.Dock="Right" LastChildFill="False">
-                                        <Button Style="{StaticResource MaterialDesignTooBarPrimaryButton}"
+                                        <Button Style="{StaticResource MaterialDesignToolBarPrimaryButton}"
                                                 Command="{s:Action AddAction}">
                                             <material:PackIcon Kind="Plus" Height="19" Width="19"/>
                                         </Button>
-                                        <Button Style="{StaticResource MaterialDesignTooBarPrimaryButton}" 
+                                        <Button Style="{StaticResource MaterialDesignToolBarPrimaryButton}" 
                                                 Command="{s:Action RemoveAction}">
                                             <material:PackIcon Kind="TrashCanOutline" Height="19" Width="19"/>
                                         </Button>

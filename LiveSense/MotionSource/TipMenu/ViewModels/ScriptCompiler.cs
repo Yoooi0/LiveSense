@@ -33,7 +33,7 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
         {
             string GetFullScriptSource(string source)
             {
-                source = _evaluateRegex.Replace(source, @"public float? Evaluate(float $1, DeviceAxis $2, float $3)");
+                source = _evaluateRegex.Replace(source, "public float? Evaluate(float $1, DeviceAxis $2, float $3)");
 
                 return @$"
                 using System;

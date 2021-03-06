@@ -19,14 +19,14 @@
                     <DockPanel LastChildFill="False" >
                         <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{Binding}" />
                         <material:PopupBox Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}" 
-                                               material:ShadowAssist.ShadowDepth="Depth1" 
-                                               DockPanel.Dock="Right"
-                                               Background="{StaticResource PrimaryHueLightBrush}"
-                                               Foreground="{Binding PrimaryHueMidBrush}"
-                                               Width="32" Height="32"
-                                               PlacementMode="BottomAndAlignCentres"
-                                               StaysOpen="True"
-                                               PopupMode="Click">
+                                           material:ShadowAssist.ShadowDepth="Depth1" 
+                                           DockPanel.Dock="Right"
+                                           Background="{StaticResource PrimaryHueLightBrush}"
+                                           Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                           Width="32" Height="32"
+                                           PlacementMode="BottomAndAlignCentres"
+                                           StaysOpen="True"
+                                           PopupMode="Click">
                             <StackPanel>
                                 <Button material:ShadowAssist.ShadowDepth="Depth2" Command="{s:Action PublishTip}" Content="1"     CommandParameter="1"/>
                                 <Button material:ShadowAssist.ShadowDepth="Depth2" Command="{s:Action PublishTip}" Content="10"    CommandParameter="10"/>

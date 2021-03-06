@@ -382,7 +382,6 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                 SelectedItem = item;
             }
 
-
             NotifyOfPropertyChange(nameof(CanMoveItemDown));
             NotifyOfPropertyChange(nameof(CanMoveItemUp));
         }
