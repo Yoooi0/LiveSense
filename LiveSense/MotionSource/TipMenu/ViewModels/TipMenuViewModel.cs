@@ -1,4 +1,4 @@
-﻿using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Document;
 using LiveSense.Common;
 using LiveSense.Common.Messages;
 using LiveSense.Service;
@@ -54,10 +54,8 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
             _devicePositions = new ConcurrentDictionary<DeviceAxis, float>(EnumUtils.GetValues<DeviceAxis>().ToDictionary(a => a, a => a.DefaultValue()));
         }
 
-        private void Process(object state)
+        private void Run(CancellationToken token)
         {
-            var token = (CancellationToken)state;
-
             try
             {
                 var stopwatch = new Stopwatch();
@@ -188,11 +186,11 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
             base.OnActivate();
 
             _cancellationSource = new CancellationTokenSource();
-            _thread = new Thread(Process)
+            _thread = new Thread(() => Run(_cancellationSource.Token))
             {
                 IsBackground = true
             };
-            _thread.Start(_cancellationSource.Token);
+            _thread.Start();
         }
 
         protected override void OnDeactivate()
