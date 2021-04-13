@@ -1,8 +1,8 @@
 <div align="center">
     <h1>LiveSense</h1>
     <br/>
-    <img src="Assets/screenshot-1.png" width=512/>
-    <img src="Assets/screenshot-2.png" width=512/>
+    <img src="Assets/screenshot-1.png" width="400"/>
+    <img src="Assets/screenshot-2.png" width="400"/>
 </div>
 
 <br/>
