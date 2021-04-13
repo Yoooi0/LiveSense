@@ -25,7 +25,7 @@
         MouseDown="{s:Action OnMouseDown}">
     <materialExtensions:MaterialWindow.TitleTemplate>
         <DataTemplate>
-            <DockPanel VerticalAlignment="Center" 
+            <DockPanel VerticalAlignment="Stretch" 
                        LastChildFill="False">
                 <StackPanel DockPanel.Dock="Left" 
                             Orientation="Horizontal" 
@@ -69,8 +69,7 @@
                 </StackPanel>
                 <Button Style="{StaticResource WindowButtonStyle}"
                         Click="{s:Action OnInformationClick}"
-                        DockPanel.Dock="Right"
-                        Margin="0 -1 0 -1">
+                        DockPanel.Dock="Right">
                     <material:PackIcon Foreground="White"
                                        Kind="InformationOutline"
                                        Width="24"

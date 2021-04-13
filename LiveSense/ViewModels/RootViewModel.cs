@@ -50,6 +50,9 @@ namespace LiveSense.ViewModels
             base.OnActivate();
         }
 
+        public void OnInformationClick()
+            => _ = Execute.OnUIThreadAsync(() => DialogHost.Show(new InformationMessageDialog(showCheckbox: false), "RootDialog"));
+
         public void OnLoaded(object sender, EventArgs e)
         {
             Execute.PostToUIThread(async () =>
