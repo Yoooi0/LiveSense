@@ -1,9 +1,8 @@
 ﻿using LiveSense.OutputTarget;
 
-namespace LiveSense.MotionSource
+namespace LiveSense.MotionSource;
+
+public interface IMotionSource : IDeviceAxisValueProvider
 {
-    public interface IMotionSource : IDeviceAxisValueProvider
-    {
-        string Name { get; }
-    }
+    string Name { get; }
 }

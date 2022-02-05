@@ -1,21 +1,18 @@
-﻿using System.Threading.Tasks;
+﻿namespace LiveSense.Service;
 
-namespace LiveSense.Service
+public enum ServiceStatus
 {
-    public enum ServiceStatus
-    {
-        Disconnected,
-        Disconnecting,
-        Connecting,
-        Connected
-    }
+    Disconnected,
+    Disconnecting,
+    Connecting,
+    Connected
+}
 
-    public interface IService
-    {
-        string Name { get; }
-        ServiceStatus Status { get; }
-        bool ContentVisible { get; set; }
+public interface IService
+{
+    string Name { get; }
+    ServiceStatus Status { get; }
+    bool ContentVisible { get; set; }
 
-        Task ToggleConnectAsync();
-    }
+    Task ToggleConnectAsync();
 }

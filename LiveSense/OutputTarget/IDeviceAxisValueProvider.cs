@@ -1,9 +1,8 @@
 ﻿using LiveSense.Common;
 
-namespace LiveSense.OutputTarget
+namespace LiveSense.OutputTarget;
+
+public interface IDeviceAxisValueProvider
 {
-    public interface IDeviceAxisValueProvider
-    {
-        public float GetValue(DeviceAxis axis);
-    }
+    public float GetValue(DeviceAxis axis);
 }

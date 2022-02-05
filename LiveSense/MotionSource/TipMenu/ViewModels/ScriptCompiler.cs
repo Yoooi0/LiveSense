@@ -1,41 +1,39 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Text.RegularExpressions;
 
-namespace LiveSense.MotionSource.TipMenu.ViewModels
+namespace LiveSense.MotionSource.TipMenu.ViewModels;
+
+public interface IScriptCompiler : IDisposable
 {
-    public interface IScriptCompiler : IDisposable
+    public string Compile(string source, out IScript instance);
+    public void Dispose(IScript instance);
+}
+
+public class ScriptCompiler : IScriptCompiler
+{
+    private readonly ConcurrentDictionary<IScript, AssemblyLoadContext> _scriptContexts;
+    private readonly Regex _evaluateRegex;
+
+    public ScriptCompiler()
     {
-        public string Compile(string source, out IScript instance);
-        public void Dispose(IScript instance);
+        _scriptContexts = new ConcurrentDictionary<IScript, AssemblyLoadContext>();
+        _evaluateRegex = new Regex(@"^\s*\((.+?),\s*(.+?),\s*(.+?)\)",
+                                   RegexOptions.Multiline | RegexOptions.Compiled);
     }
 
-    public class ScriptCompiler : IScriptCompiler
+    public string Compile(string source, out IScript instance)
     {
-        private readonly ConcurrentDictionary<IScript, AssemblyLoadContext> _scriptContexts;
-        private readonly Regex _evaluateRegex;
-
-        public ScriptCompiler()
+        string GetFullScriptSource(string source)
         {
-            _scriptContexts = new ConcurrentDictionary<IScript, AssemblyLoadContext>();
-            _evaluateRegex = new Regex(@"^\s*\((.+?),\s*(.+?),\s*(.+?)\)",
-                                       RegexOptions.Multiline | RegexOptions.Compiled);
-        }
+            source = _evaluateRegex.Replace(source, "public float? Evaluate(float $1, DeviceAxis $2, float $3)");
 
-        public string Compile(string source, out IScript instance)
-        {
-            string GetFullScriptSource(string source)
-            {
-                source = _evaluateRegex.Replace(source, "public float? Evaluate(float $1, DeviceAxis $2, float $3)");
-
-                return @$"
+            return @$"
                 using System;
                 using System.Runtime;
                 using LiveSense.Common;
@@ -51,106 +49,105 @@ namespace LiveSense.MotionSource.TipMenu.ViewModels
                         {source}
                     }}
                 }}";
-            }
+        }
 
-            static string GetCompilationOutput(Stopwatch stopwatch, params string[] lines)
-                => string.Join("\n", lines.Append($"Completed in {stopwatch.Elapsed.TotalSeconds}s")
-                                            .Select(l => $"[{DateTime.Now.ToLongTimeString()}] {l}"));
+        static string GetCompilationOutput(Stopwatch stopwatch, params string[] lines)
+            => string.Join("\n", lines.Append($"Completed in {stopwatch.Elapsed.TotalSeconds}s")
+                                        .Select(l => $"[{DateTime.Now.ToLongTimeString()}] {l}"));
 
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            instance = null;
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        instance = null;
 
-            try
+        try
+        {
+            var syntaxTree = CSharpSyntaxTree.ParseText(GetFullScriptSource(source));
+
+            var assemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location);
+            var references = new MetadataReference[]
             {
-                var syntaxTree = CSharpSyntaxTree.ParseText(GetFullScriptSource(source));
-
-                var assemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location);
-                var references = new MetadataReference[]
-                {
                     MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
                     MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "mscorlib.dll")),
                     MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.dll")),
                     MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Core.dll")),
                     MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Runtime.dll")),
                     MetadataReference.CreateFromFile(typeof(IScript).Assembly.Location),
-                };
+            };
 
-                var random = new Random();
-                var randomId = string.Concat(Enumerable.Range(0, 5).Select(_ => $"{random.Next(0, 15):x}"));
-                var dateId = $"{(long)(DateTime.Now - DateTime.UnixEpoch).TotalMilliseconds:x}";
+            var random = new Random();
+            var randomId = string.Concat(Enumerable.Range(0, 5).Select(_ => $"{random.Next(0, 15):x}"));
+            var dateId = $"{(long)(DateTime.Now - DateTime.UnixEpoch).TotalMilliseconds:x}";
 
-                var assemblyName = $"Script_{dateId}{randomId}";
-                var compilation = CSharpCompilation.Create(
-                    assemblyName,
-                    syntaxTrees: new[] { syntaxTree },
-                    references: references,
-                    options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            var assemblyName = $"Script_{dateId}{randomId}";
+            var compilation = CSharpCompilation.Create(
+                assemblyName,
+                syntaxTrees: new[] { syntaxTree },
+                references: references,
+                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-                using var stream = new MemoryStream();
-                var emitResult = compilation.Emit(stream);
+            using var stream = new MemoryStream();
+            var emitResult = compilation.Emit(stream);
 
-                if (!emitResult.Success)
-                {
-                    var diagnostics = emitResult.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
-                    return GetCompilationOutput(stopwatch, string.Join(Environment.NewLine, diagnostics));
-                }
-
-                stream.Seek(0, SeekOrigin.Begin);
-                var context = new CollectibleAssemblyLoadContext();
-                var assembly = context.LoadFromStream(stream);
-                var type = assembly.GetExportedTypes().FirstOrDefault(t => t.GetInterface("IScript") != null);
-
-                instance = Activator.CreateInstance(type) as IScript;
-                _scriptContexts.TryAdd(instance, context);
-
-                return GetCompilationOutput(stopwatch, "Compilation success");
-            }
-            catch (Exception e)
+            if (!emitResult.Success)
             {
-                return GetCompilationOutput(stopwatch, e.ToString());
+                var diagnostics = emitResult.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
+                return GetCompilationOutput(stopwatch, string.Join(Environment.NewLine, diagnostics));
             }
+
+            stream.Seek(0, SeekOrigin.Begin);
+            var context = new CollectibleAssemblyLoadContext();
+            var assembly = context.LoadFromStream(stream);
+            var type = assembly.GetExportedTypes().FirstOrDefault(t => t.GetInterface("IScript") != null);
+
+            instance = Activator.CreateInstance(type) as IScript;
+            _scriptContexts.TryAdd(instance, context);
+
+            return GetCompilationOutput(stopwatch, "Compilation success");
         }
-
-        public void Dispose(IScript instance)
+        catch (Exception e)
         {
-            if (instance == null)
-                return;
+            return GetCompilationOutput(stopwatch, e.ToString());
+        }
+    }
 
-            if (_scriptContexts.TryRemove(instance, out var context))
+    public void Dispose(IScript instance)
+    {
+        if (instance == null)
+            return;
+
+        if (_scriptContexts.TryRemove(instance, out var context))
+        {
+            var reference = new WeakReference(context);
+            context.Unload();
+            context = null;
+
+            for (var i = 0; reference.IsAlive && i < 10; i++)
             {
-                var reference = new WeakReference(context);
-                context.Unload();
-                context = null;
-
-                for (var i = 0; reference.IsAlive && i < 10; i++)
-                {
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                }
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
             }
         }
+    }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            foreach (var (_, context) in _scriptContexts)
-                context.Unload();
+    protected virtual void Dispose(bool disposing)
+    {
+        foreach (var (_, context) in _scriptContexts)
+            context.Unload();
 
-            _scriptContexts.Clear();
-        }
+        _scriptContexts.Clear();
+    }
 
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
 
-        public class CollectibleAssemblyLoadContext : AssemblyLoadContext
-        {
-            public CollectibleAssemblyLoadContext()
-                : base(isCollectible: true) { }
+    public class CollectibleAssemblyLoadContext : AssemblyLoadContext
+    {
+        public CollectibleAssemblyLoadContext()
+            : base(isCollectible: true) { }
 
-            protected override Assembly Load(AssemblyName assemblyName) => null;
-        }
+        protected override Assembly Load(AssemblyName assemblyName) => null;
     }
 }

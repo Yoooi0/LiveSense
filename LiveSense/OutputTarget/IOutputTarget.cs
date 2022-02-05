@@ -1,21 +1,18 @@
-﻿using System.Threading.Tasks;
+﻿namespace LiveSense.OutputTarget;
 
-namespace LiveSense.OutputTarget
+public enum OutputTargetStatus
 {
-    public enum OutputTargetStatus
-    {
-        Disconnected,
-        Disconnecting,
-        Connecting,
-        Connected
-    }
+    Disconnected,
+    Disconnecting,
+    Connecting,
+    Connected
+}
 
-    public interface IOutputTarget
-    {
-        string Name { get; }
-        OutputTargetStatus Status { get; }
-        bool ContentVisible { get; set; }
+public interface IOutputTarget
+{
+    string Name { get; }
+    OutputTargetStatus Status { get; }
+    bool ContentVisible { get; set; }
 
-        Task ToggleConnectAsync();
-    }
+    Task ToggleConnectAsync();
 }
