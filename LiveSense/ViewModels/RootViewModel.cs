@@ -80,7 +80,7 @@ public class RootViewModel : Conductor<IScreen>.Collection.AllActive
 
     private JObject ReadSettings()
     {
-        var path = Path.Join(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "LiveSense.config.json");
+        var path = Path.Join(Path.GetDirectoryName(Environment.ProcessPath), "LiveSense.config.json");
         if (!File.Exists(path))
             return new JObject();
 
@@ -96,7 +96,7 @@ public class RootViewModel : Conductor<IScreen>.Collection.AllActive
 
     private void WriteSettings(JObject settings)
     {
-        var path = Path.Join(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "LiveSense.config.json");
+        var path = Path.Join(Path.GetDirectoryName(Environment.ProcessPath), "LiveSense.config.json");
         File.WriteAllText(path, settings.ToString());
     }
 

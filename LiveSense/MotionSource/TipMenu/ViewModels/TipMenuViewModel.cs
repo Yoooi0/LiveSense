@@ -256,6 +256,7 @@ public class TipMenuViewModel : AbstractMotionSource
                         script.Document.SetOwnerThread(uiThread);
                         Scripts.Add(script);
                     }
+
                     Execute.OnUIThread(() => IsEditorBusy = false);
                 }).ConfigureAwait(true);
             }
@@ -355,7 +356,7 @@ public class TipMenuViewModel : AbstractMotionSource
     {
         var dialog = new CommonSaveFileDialog()
         {
-            InitialDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName)
+            InitialDirectory = Path.GetDirectoryName(Environment.ProcessPath)
         };
         dialog.Filters.Add(new CommonFileDialogFilter("JSON files", "*.json"));
 
@@ -370,7 +371,7 @@ public class TipMenuViewModel : AbstractMotionSource
     {
         var dialog = new CommonOpenFileDialog()
         {
-            InitialDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName),
+            InitialDirectory = Path.GetDirectoryName(Environment.ProcessPath),
             EnsureFileExists = true
         };
         dialog.Filters.Add(new CommonFileDialogFilter("JSON files", "*.json"));

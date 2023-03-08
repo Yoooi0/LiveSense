@@ -10,7 +10,7 @@ public static class CanvasService
         DependencyProperty.RegisterAttached("Children", typeof(IEnumerable<UIElement>), typeof(CanvasService),
             new UIPropertyMetadata(OnChildrenChanged));
 
-    private readonly static Dictionary<INotifyCollectionChanged, Canvas> _references = new Dictionary<INotifyCollectionChanged, Canvas>();
+    private readonly static Dictionary<INotifyCollectionChanged, Canvas> _references = new();
 
     public static IEnumerable<UIElement> GetChildren(Canvas canvas)
         => canvas.GetValue(ChildrenProperty) as IEnumerable<UIElement>;

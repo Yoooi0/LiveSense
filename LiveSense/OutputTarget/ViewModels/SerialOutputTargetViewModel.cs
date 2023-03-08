@@ -39,6 +39,7 @@ public class SerialOutputTargetViewModel : ThreadAbstractOutputTarget
             ComPorts.AddRange(SerialPort.GetPortNames());
         }
         catch { }
+
         SelectedComPort = lastSelected;
 
         await Task.Delay(250).ConfigureAwait(true);
@@ -122,7 +123,7 @@ public class SerialOutputTargetViewModel : ThreadAbstractOutputTarget
                 await RefreshPorts().ConfigureAwait(true);
             });
         }
-        catch (Exception) { }
+        catch { }
 
         try
         {

@@ -19,12 +19,7 @@ public static class MathUtils
     public static float UnLerpUnclamped(float from, float to, float t) => (t - from) / (to - from);
     public static float Map(float x, float from0, float to0, float from1, float to1) => Lerp(from1, to1, UnLerp(from0, to0, x));
     public static float MapUnclamped(float x, float from0, float to0, float from1, float to1) => LerpUnclamped(from1, to1, UnLerpUnclamped(from0, to0, x));
-    public static void Swap<T>(ref T a, ref T b)
-    {
-        T temp = a;
-        a = b;
-        b = temp;
-    }
+    public static void Swap<T>(ref T a, ref T b) => (b, a) = (a, b);
 
     public static int Random(int from, int to) => _random.Next(from, to);
     public static double Random() => _random.NextDouble();

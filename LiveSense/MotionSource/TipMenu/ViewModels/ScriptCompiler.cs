@@ -97,7 +97,7 @@ public class ScriptCompiler : IScriptCompiler
             stream.Seek(0, SeekOrigin.Begin);
             var context = new CollectibleAssemblyLoadContext();
             var assembly = context.LoadFromStream(stream);
-            var type = assembly.GetExportedTypes().FirstOrDefault(t => t.GetInterface("IScript") != null);
+            var type = Array.Find(assembly.GetExportedTypes(), t => t.GetInterface("IScript") != null);
 
             instance = Activator.CreateInstance(type) as IScript;
             _scriptContexts.TryAdd(instance, context);

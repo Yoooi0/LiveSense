@@ -44,7 +44,7 @@ public class StripchatViewModel : AbstractService
             using var stream = response.GetResponseStream();
             using var reader = new StreamReader(stream);
 
-            var content = await reader.ReadToEndAsync().ConfigureAwait(false);
+            var content = await reader.ReadToEndAsync(token).ConfigureAwait(false);
             var state = Regex.Match(content, @"<script>[\n\r\s]*?window\.__PRELOADED_STATE__\s?=\s?({.+?})</script>").Groups[1].Value;
             var stateDocument = JObject.Parse(state);
 

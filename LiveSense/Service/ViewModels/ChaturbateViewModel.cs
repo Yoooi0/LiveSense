@@ -39,10 +39,10 @@ public class ChaturbateViewModel : AbstractService
 
         try
         {
-            var csrf = await GetClientCsrf(client, cookies, token);
-            var context = await GetRoomContext(client, RoomName.ToLower(), token);
+            var csrf = await GetClientCsrf(client, cookies, token).ConfigureAwait(false);
+            var context = await GetRoomContext(client, RoomName.ToLower(), token).ConfigureAwait(false);
             var roomId = context["room_uid"].ToString();
-            var accessToken = await GetAuthToken(client, csrf, roomId, token);
+            var accessToken = await GetAuthToken(client, csrf, roomId, token).ConfigureAwait(false);
 
             var wssUri = new Uri($"wss://realtime.pa.highwebmedia.com/?access_token={accessToken}&format=json&heartbeats=true&v=1.2&agent=ably-js%2F1.2.13%20browser&remainPresentFor=0");
             await socket.ConnectAsync(wssUri, token).ConfigureAwait(false);
@@ -86,23 +86,23 @@ public class ChaturbateViewModel : AbstractService
 
         static async Task<string> GetClientCsrf(HttpClient client, CookieContainer cookies, CancellationToken token)
         {
-            var uri = new Uri($"https://chaturbate.com/");
-            var result = await client.GetAsync(uri, token);
-            var content = await result.Content.ReadAsStringAsync();
+            var uri = new Uri("https://chaturbate.com/");
+            var result = await client.GetAsync(uri, token).ConfigureAwait(false);
+            var content = await result.Content.ReadAsStringAsync(token).ConfigureAwait(false);
             return cookies.GetAllCookies().First(c => string.Equals(c.Name, "csrftoken", StringComparison.OrdinalIgnoreCase)).Value;
         }
 
         static async Task<JObject> GetRoomContext(HttpClient client, string roomName, CancellationToken token)
         {
-            var result = await client.GetAsync(new Uri($"https://chaturbate.com/api/chatvideocontext/{roomName}/"), token);
-            var content = await result.Content.ReadAsStringAsync();
+            var result = await client.GetAsync(new Uri($"https://chaturbate.com/api/chatvideocontext/{roomName}/"), token).ConfigureAwait(false);
+            var content = await result.Content.ReadAsStringAsync(token).ConfigureAwait(false);
             return JObject.Parse(content);
         }
 
         static async Task SubscribeRoomChannels(ClientWebSocket socket, string roomId, CancellationToken token)
         {
             foreach (var subscribeMessage in GetSubscribeMessages(roomId))
-                await socket.SendStringAsync(subscribeMessage, token);
+                await socket.SendStringAsync(subscribeMessage, token).ConfigureAwait(false);
 
             static IEnumerable<string> GetSubscribeMessages(string roomId)
             {
@@ -110,7 +110,7 @@ public class ChaturbateViewModel : AbstractService
                 yield return CreateMessage($"room:purchase:{roomId}");
                 yield return CreateMessage($"room:funclub:{roomId}");
                 yield return CreateMessage($"room:message:{roomId}:0");
-                yield return CreateMessage($"global:push_service");
+                yield return CreateMessage("global:push_service");
                 yield return CreateMessage($"room_annon:presence:{roomId}");
                 yield return CreateMessage($"room:quality_update:{roomId}");
                 yield return CreateMessage($"room:notice:{roomId}");
@@ -139,7 +139,7 @@ public class ChaturbateViewModel : AbstractService
                 [$"RoomPurchaseTopic#RoomPurchaseTopic:{roomId}"] = broadcaster,
                 [$"RoomFanClubJoinedTopic#RoomFanClubJoinedTopic:{roomId}"] = broadcaster,
                 [$"RoomMessageTopic#RoomMessageTopic:{roomId}"] = broadcaster,
-                [$"GlobalPushServiceBackendChangeTopic#GlobalPushServiceBackendChangeTopic"] = new JObject(),
+                ["GlobalPushServiceBackendChangeTopic#GlobalPushServiceBackendChangeTopic"] = new JObject(),
                 [$"RoomAnonPresenceTopic#RoomAnonPresenceTopic:{roomId}"] = broadcaster,
                 [$"QualityUpdateTopic#QualityUpdateTopic:{roomId}"] = broadcaster,
                 [$"RoomNoticeTopic#RoomNoticeTopic:{roomId}"] = broadcaster,
@@ -170,8 +170,8 @@ public class ChaturbateViewModel : AbstractService
             var requestContent = new StringContent(authContent, Encoding.UTF8, MediaTypeHeaderValue.Parse("multipart/form-data; boundary=-"));
             requestContent.Headers.Add("X-Requested-With", "XMLHttpRequest");
 
-            var response = await client.PostAsync(new Uri("https://chaturbate.com/push_service/auth/"), requestContent, token);
-            var responseContent = await response.Content.ReadAsStringAsync(token);
+            var response = await client.PostAsync(new Uri("https://chaturbate.com/push_service/auth/"), requestContent, token).ConfigureAwait(false);
+            var responseContent = await response.Content.ReadAsStringAsync(token).ConfigureAwait(false);
 
             var document = JObject.Parse(responseContent);
             return document["token"].ToString();
